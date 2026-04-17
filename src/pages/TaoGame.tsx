@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { RotateCcw, Star } from "lucide-react";
 import { NebulaBackground } from "@/components/NebulaBackground";
@@ -50,13 +50,6 @@ export default function TaoGame() {
     ),
   });
 
-  // Auto-advance stage when conditions met
-  useEffect(() => {
-    if (canAdvanceStage) {
-      // Don't auto-advance — let user click the button
-    }
-  }, [canAdvanceStage]);
-
   const handleHuasheng = useCallback(async () => {
     if (isEventLoading || state.zhongqi < 30 || state.stage === 0) return;
     const id = `event-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -64,7 +57,6 @@ export default function TaoGame() {
     startEvent(id, "huasheng");
     setIsEventLoading(true);
 
-    // Scroll to event log
     setTimeout(() => {
       eventLogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
@@ -76,7 +68,6 @@ export default function TaoGame() {
 
   return (
     <div className="min-h-full relative overflow-x-hidden">
-      {/* Backgrounds */}
       <NebulaBackground />
       <StarfieldCanvas />
 
@@ -113,7 +104,6 @@ export default function TaoGame() {
             contextQuery={daoQuery}
             onClearQuery={() => setDaoQuery(undefined)}
           />
-
           <Link
             to="/"
             className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-all hover:opacity-80"
@@ -127,7 +117,6 @@ export default function TaoGame() {
             <Star size={12} />
             梦境
           </Link>
-
           <button
             onClick={reset}
             className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-all hover:opacity-80"
@@ -150,10 +139,9 @@ export default function TaoGame() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-            {/* LEFT PANEL — Cosmos + Controls */}
+            {/* LEFT PANEL */}
             <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4">
 
-              {/* Stage display */}
               <div
                 className="glass-strong rounded-2xl px-5 py-4"
                 style={{ border: "1px solid hsl(240 28% 24% / 0.5)" }}
@@ -166,7 +154,6 @@ export default function TaoGame() {
                 />
               </div>
 
-              {/* Cosmos visualization */}
               <div
                 className="glass-strong rounded-2xl flex items-center justify-center py-6"
                 style={{
@@ -182,7 +169,6 @@ export default function TaoGame() {
                 />
               </div>
 
-              {/* Resources */}
               <ResourcePanel
                 yin={state.yin}
                 yang={state.yang}
@@ -190,7 +176,6 @@ export default function TaoGame() {
                 stage={state.stage}
               />
 
-              {/* Actions */}
               <ActionPanel
                 stage={state.stage}
                 yin={state.yin}
@@ -205,10 +190,9 @@ export default function TaoGame() {
                 onAdvanceStage={tryAdvanceStage}
               />
 
-              {/* Footer hint */}
               {state.stage === 0 && !state.started && (
                 <p
-                  className="font-serif italic text-center text-xs animate-pulse-glow"
+                  className="font-serif italic text-center text-xs"
                   style={{ color: "hsl(260 50% 50%)", lineHeight: 1.6 }}
                 >
                   道生一，一生二，<br />二生三，三生万物。<br />
@@ -232,26 +216,13 @@ export default function TaoGame() {
                     gap: 12,
                   }}
                 >
-                  <p
-                    className="font-serif text-xl"
-                    style={{ color: "hsl(260 50% 55%)", fontWeight: 300 }}
-                  >
+                  <p className="font-serif text-xl" style={{ color: "hsl(260 50% 55%)", fontWeight: 300 }}>
                     无名，天地之始
                   </p>
-                  <p
-                    className="font-serif italic text-sm"
-                    style={{ color: "hsl(220 15% 45%)", maxWidth: 300 }}
-                  >
+                  <p className="font-serif italic text-sm" style={{ color: "hsl(220 15% 45%)", maxWidth: 300 }}>
                     在混沌之初，一切尚未开始。<br />以无为之心，启动宇宙的第一次流转。
                   </p>
-                  <p
-                    className="text-xs"
-                    style={{
-                      color: "hsl(220 15% 32%)",
-                      fontFamily: "Inter, sans-serif",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
+                  <p className="text-xs" style={{ color: "hsl(220 15% 32%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}>
                     帛书老子·第一章
                   </p>
                 </div>

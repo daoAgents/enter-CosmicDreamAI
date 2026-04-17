@@ -179,11 +179,22 @@ function saveToStorage(state: GameState) {
 export function useGameState() {
   const [state, dispatch] = useReducer(gameReducer, undefined, loadFromStorage);
   const lastTickRef = useRef<number>(Date.now());
+  const lastSaveRef = useRef<number>(0);
 
-  // Persist to localStorage on every state change
+  // Persist to localStorage — throttled to every 5 seconds to avoid excessive writes
   useEffect(() => {
-    saveToStorage(state);
+    const now = Date.now();
+    if (now - lastSaveRef.current > 5000) {
+      saveToStorage(state);
+      lastSaveRef.current = now;
+    }
   }, [state]);
+
+  // Always save on unmount to preserve latest state
+  useEffect(() => {
+    return () => saveToStorage(state);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Tick loop
   useEffect(() => {
@@ -220,9 +231,9 @@ export function useGameState() {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  // Check if can advance stage
+  // Check if can advance stage (stage 0→1 is handled by WUWEI directly)
   const canAdvanceStage = (() => {
-    if (state.stage >= 4) return false;
+    if (state.stage === 0 || state.stage >= 4) return false;
     const threshold = STAGE_THRESHOLDS[state.stage];
     if (!threshold) return false;
     const stageEventsCount = state.events.filter((e) => e.stage === state.stage).length;

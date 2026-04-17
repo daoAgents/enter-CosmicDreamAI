@@ -129,8 +129,8 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
 
             {/* Content */}
             <div className="flex gap-0">
-              {/* Image */}
-              {event.imageUrl && (
+              {/* Image — show loading spinner until imageUrl is set */}
+              {event.imageUrl ? (
                 <div
                   className="flex-shrink-0 animate-portal-reveal"
                   style={{ width: 120, minHeight: 120 }}
@@ -143,23 +143,28 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                     crossOrigin="anonymous"
                   />
                 </div>
-              )}
-              {!event.imageUrl && event.text === "" && (
+              ) : (
                 <div
                   className="flex-shrink-0 flex items-center justify-center"
                   style={{
                     width: 120, minHeight: 120,
-                    background: "hsl(240 20% 10%)",
+                    background: `linear-gradient(135deg, hsl(240 20% 10%), ${stageColor}08)`,
+                    borderRight: `1px solid ${stageColor}18`,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 20, height: 20, borderRadius: "50%",
-                      border: `2px solid ${stageColor}55`,
-                      borderTopColor: stageColor,
-                      animation: "crystal-spin 1s linear infinite",
-                    }}
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <div
+                      style={{
+                        width: 20, height: 20, borderRadius: "50%",
+                        border: `2px solid ${stageColor}40`,
+                        borderTopColor: stageColor,
+                        animation: "crystal-spin 1s linear infinite",
+                      }}
+                    />
+                    <span style={{ fontSize: "0.6rem", color: stageColor, opacity: 0.6, fontFamily: "Inter, sans-serif" }}>
+                      幻象生成中
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -175,7 +180,7 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                     }}
                   >
                     {event.text}
-                    {!event.imageUrl && (
+                    {!event.imageUrl && event.text.length > 0 && (
                       <span
                         className="animate-typing-cursor ml-0.5"
                         style={{ color: stageColor }}

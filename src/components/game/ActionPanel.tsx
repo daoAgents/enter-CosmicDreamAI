@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Sparkles, Waves, Zap, ChevronRight } from "lucide-react";
 import { GameStage } from "@/hooks/useGameState";
 
