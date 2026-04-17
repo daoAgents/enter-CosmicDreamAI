@@ -1,0 +1,37 @@
+{
+  "common": {
+    "appName": "AI 梦境可视化",
+    "poweredBy": "由 Claude Opus & Seedream 4.5 驱动"
+  },
+  "hero": {
+    "eyebrow": "AI 梦境可视化",
+    "titleLine1": "探入",
+    "titleLine2": "潜意识深处",
+    "subtitle": "分享一段梦境，获得符号象征的解读，以及以以太之门呈现的梦境幻象。",
+    "divider": "幻象展开"
+  },
+  "input": {
+    "label": "描述你的梦境",
+    "placeholder": "我漂浮在镜子构成的大教堂中，每一面镜子都映照出不同的自己，向着一扇发光的门伸手……",
+    "chars": "{{count}} 字符",
+    "shortcut": "⌘↵ 可视化",
+    "hint": "象征解析与梦境幻象将同时呈现",
+    "submit": "可视化梦境",
+    "submitting": "正在可视化…"
+  },
+  "oracle": {
+    "title": "梦境神谕",
+    "idle": "神谕等待着你的梦境……",
+    "idleDesc": "符号、原型与潜意识的语言即将被揭示",
+    "reading": "正在解读符号……"
+  },
+  "portal": {
+    "opening": "正在开启传送门……",
+    "manifesting": "正在具现你的梦境",
+    "idleTitle": "你的梦境传送门",
+    "idleSubtitle": "等待可视化",
+    "imageAlt": "梦境幻象",
+    "save": "保存幻象",
+    "label": "梦境传送门"
+  }
+}

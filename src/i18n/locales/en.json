@@ -1,0 +1,37 @@
+{
+  "common": {
+    "appName": "AI Dream Visualizer",
+    "poweredBy": "Powered by Claude Opus & Seedream 4.5"
+  },
+  "hero": {
+    "eyebrow": "AI Dream Visualizer",
+    "titleLine1": "Journey into",
+    "titleLine2": "the Unconscious",
+    "subtitle": "Share a dream. Receive its symbolism decoded and its vision rendered as an ethereal portal.",
+    "divider": "Vision Unfolding"
+  },
+  "input": {
+    "label": "Describe Your Dream",
+    "placeholder": "I was floating through a cathedral of mirrors, each reflection showing a different version of myself reaching toward a luminous door...",
+    "chars": "{{count}} chars",
+    "shortcut": "⌘↵ to visualize",
+    "hint": "Both symbolism analysis and visual portal will appear simultaneously",
+    "submit": "Visualize Dream",
+    "submitting": "Visualizing..."
+  },
+  "oracle": {
+    "title": "Dream Oracle",
+    "idle": "The oracle awaits your dream...",
+    "idleDesc": "Symbols, archetypes, and the language of the subconscious will be unveiled",
+    "reading": "Reading the symbols..."
+  },
+  "portal": {
+    "opening": "Opening the portal...",
+    "manifesting": "Manifesting your dreamscape",
+    "idleTitle": "Your dream portal",
+    "idleSubtitle": "awaits visualization",
+    "imageAlt": "Dream visualization",
+    "save": "Save Vision",
+    "label": "Dream Portal"
+  }
+}

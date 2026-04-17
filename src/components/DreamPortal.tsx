@@ -1,4 +1,5 @@
 import { Loader2, Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DreamPortalProps {
   imageUrl: string | null;
@@ -7,6 +8,8 @@ interface DreamPortalProps {
 }
 
 export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
+  const { t } = useTranslation();
+
   const handleDownload = async () => {
     if (!imageUrl) return;
     try {
@@ -51,7 +54,6 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
         {/* Loading state */}
         {isLoading && !imageUrl && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-            {/* Animated portal ring */}
             <div className="relative flex items-center justify-center">
               <div
                 className="absolute rounded-full"
@@ -76,14 +78,14 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
             </div>
             <div className="text-center">
               <p className="font-serif italic text-sm" style={{ color: "hsl(260, 60%, 70%)" }}>
-                Opening the portal...
+                {t("portal.opening")}
               </p>
               <p className="text-xs mt-1" style={{
                 color: "hsl(220, 15%, 40%)",
                 fontFamily: "Inter, sans-serif",
                 fontWeight: 300,
               }}>
-                Manifesting your dreamscape
+                {t("portal.manifesting")}
               </p>
             </div>
           </div>
@@ -92,7 +94,6 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
         {/* Idle state */}
         {!isLoading && !imageUrl && !error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            {/* Portal icon rings */}
             <div className="relative">
               {[80, 56, 32].map((size, i) => (
                 <div
@@ -116,9 +117,9 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
               />
             </div>
             <p className="font-serif italic text-sm text-center px-6" style={{ color: "hsl(220, 20%, 50%)" }}>
-              Your dream portal<br />
+              {t("portal.idleTitle")}<br />
               <span style={{ fontSize: "0.75rem", color: "hsl(220, 15%, 38%)" }}>
-                awaits visualization
+                {t("portal.idleSubtitle")}
               </span>
             </p>
           </div>
@@ -144,12 +145,10 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
           <>
             <img
               src={imageUrl}
-              alt="Dream visualization"
+              alt={t("portal.imageAlt")}
               className="absolute inset-0 w-full h-full object-cover animate-portal-reveal"
               style={{ borderRadius: "inherit" }}
             />
-
-            {/* Overlay gradient at bottom */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
@@ -157,8 +156,6 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
                 borderRadius: "inherit",
               }}
             />
-
-            {/* Download button */}
             <button
               onClick={handleDownload}
               className="absolute bottom-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg opacity-0 hover:opacity-100 transition-all duration-300 group"
@@ -172,7 +169,7 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
               }}
             >
               <Download className="w-3 h-3" />
-              Save Vision
+              {t("portal.save")}
             </button>
           </>
         )}
@@ -199,7 +196,7 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
         fontWeight: 300,
         letterSpacing: "0.2em",
       }}>
-        Dream Portal
+        {t("portal.label")}
       </p>
     </div>
   );

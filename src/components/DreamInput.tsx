@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Sparkles, Moon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface DreamInputProps {
   onVisualize: (dream: string) => void;
@@ -8,6 +9,7 @@ interface DreamInputProps {
 }
 
 export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
+  const { t } = useTranslation();
   const [dream, setDream] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -60,7 +62,7 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
           <Moon className="w-4 h-4" style={{ color: "hsl(260, 80%, 70%)" }} />
           <span className="text-xs tracking-widest uppercase"
             style={{ color: "hsl(260, 80%, 70%)", fontFamily: "Inter, sans-serif", fontWeight: 300, letterSpacing: "0.15em" }}>
-            Describe Your Dream
+            {t("input.label")}
           </span>
         </div>
 
@@ -72,7 +74,7 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
-          placeholder="I was floating through a cathedral of mirrors, each reflection showing a different version of myself reaching toward a luminous door..."
+          placeholder={t("input.placeholder")}
           disabled={isLoading}
           rows={4}
           className={cn(
@@ -93,8 +95,8 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
         {/* Bottom row */}
         <div className="relative flex items-center justify-between px-5 pb-5 pt-1" style={{ zIndex: 1 }}>
           <span className="text-xs" style={{ color: "hsl(220, 15%, 40%)", fontFamily: "Inter, sans-serif" }}>
-            {dream.length > 0 && <>{dream.length} chars &nbsp;·&nbsp; </>}
-            <span style={{ opacity: 0.6 }}>⌘↵ to visualize</span>
+            {dream.length > 0 && <>{t("input.chars", { count: dream.length })} &nbsp;·&nbsp; </>}
+            <span style={{ opacity: 0.6 }}>{t("input.shortcut")}</span>
           </span>
 
           <button
@@ -122,12 +124,12 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
             {isLoading ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Visualizing...</span>
+                <span>{t("input.submitting")}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Visualize Dream</span>
+                <span>{t("input.submit")}</span>
               </>
             )}
           </button>
@@ -151,7 +153,7 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
         fontWeight: 300,
         letterSpacing: "0.05em",
       }}>
-        Both symbolism analysis and visual portal will appear simultaneously
+        {t("input.hint")}
       </p>
     </div>
   );

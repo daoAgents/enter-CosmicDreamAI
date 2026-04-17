@@ -1,14 +1,18 @@
 import { useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { StarfieldCanvas } from "@/components/StarfieldCanvas";
 import { FloatingCrystals } from "@/components/FloatingCrystals";
 import { NebulaBackground } from "@/components/NebulaBackground";
 import { DreamInput } from "@/components/DreamInput";
 import { DreamPortal } from "@/components/DreamPortal";
 import { DreamInterpretation } from "@/components/DreamInterpretation";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useDreamAnalysis } from "@/hooks/useDreamAnalysis";
 import { useDreamImage } from "@/hooks/useDreamImage";
 
 const Index = () => {
+  const { t } = useTranslation();
+
   const {
     interpretation,
     isLoading: isAnalyzing,
@@ -34,12 +38,10 @@ const Index = () => {
       resetAnalysis();
       resetImage();
 
-      // Scroll to results after a brief moment
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
 
-      // Trigger both simultaneously
       await Promise.all([analyzeDream(dream), generateImage(dream)]);
     },
     [analyzeDream, generateImage, resetAnalysis, resetImage]
@@ -53,6 +55,11 @@ const Index = () => {
       <NebulaBackground />
       <StarfieldCanvas />
       <FloatingCrystals />
+
+      {/* Language switcher — fixed top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSwitcher />
+      </div>
 
       {/* Content */}
       <div className="relative flex flex-col min-h-full" style={{ zIndex: 10 }}>
@@ -72,7 +79,7 @@ const Index = () => {
                 fontWeight: 300,
                 letterSpacing: "0.25em",
               }}>
-                AI Dream Visualizer
+                {t("hero.eyebrow")}
               </span>
               <div
                 className="h-px w-12"
@@ -90,7 +97,7 @@ const Index = () => {
                 letterSpacing: "-0.02em",
               }}
             >
-              <span className="text-gradient-dream">Journey into</span>
+              <span className="text-gradient-dream">{t("hero.titleLine1")}</span>
               <br />
               <span
                 className="italic"
@@ -99,7 +106,7 @@ const Index = () => {
                   textShadow: "0 0 60px hsl(260 80% 70% / 0.15)",
                 }}
               >
-                the Unconscious
+                {t("hero.titleLine2")}
               </span>
             </h1>
 
@@ -114,8 +121,7 @@ const Index = () => {
                 margin: "0 auto",
               }}
             >
-              Share a dream. Receive its symbolism decoded and
-              its vision rendered as an ethereal portal.
+              {t("hero.subtitle")}
             </p>
           </div>
 
@@ -142,7 +148,7 @@ const Index = () => {
               letterSpacing: "0.2em",
               whiteSpace: "nowrap",
             }}>
-              Vision Unfolding
+              {t("hero.divider")}
             </span>
             <div
               className="h-px flex-1"
@@ -197,7 +203,7 @@ const Index = () => {
             fontWeight: 300,
             letterSpacing: "0.05em",
           }}>
-            Powered by Claude Opus &amp; Seedream 4.5
+            {t("common.poweredBy")}
           </p>
         </div>
       </div>

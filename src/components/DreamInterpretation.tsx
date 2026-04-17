@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface DreamInterpretationProps {
   interpretation: string;
@@ -103,6 +104,8 @@ function formatInterpretation(text: string): React.ReactNode[] {
 }
 
 export function DreamInterpretation({ interpretation, isLoading, error, isComplete }: DreamInterpretationProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full h-full flex flex-col">
       {/* Card */}
@@ -141,7 +144,7 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
               letterSpacing: "0.18em",
             }}
           >
-            Dream Oracle
+            {t("oracle.title")}
           </span>
           {isLoading && (
             <Loader2 className="w-3 h-3 ml-auto animate-spin" style={{ color: "hsl(260, 70%, 65%)" }} />
@@ -176,7 +179,7 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
                 className="font-serif italic text-center"
                 style={{ color: "hsl(220, 15%, 45%)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "280px" }}
               >
-                The oracle awaits your dream...
+                {t("oracle.idle")}
               </p>
               <p
                 className="text-xs text-center"
@@ -188,7 +191,7 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
                   lineHeight: 1.6,
                 }}
               >
-                Symbols, archetypes, and the language of the subconscious will be unveiled
+                {t("oracle.idleDesc")}
               </p>
             </div>
           )}
@@ -204,7 +207,7 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
                 />
               </div>
               <p className="font-serif italic" style={{ color: "hsl(260, 50%, 60%)", fontSize: "0.95rem" }}>
-                Reading the symbols...
+                {t("oracle.reading")}
               </p>
             </div>
           )}
