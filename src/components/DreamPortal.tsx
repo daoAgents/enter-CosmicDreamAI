@@ -35,18 +35,18 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
         className="relative overflow-hidden rounded-2xl"
         style={{
           aspectRatio: "1 / 1",
-          background: "linear-gradient(135deg, hsl(240 20% 8% / 0.9), hsl(240 25% 5% / 0.8))",
-          border: "1px solid hsl(260 30% 20% / 0.6)",
+          background: "linear-gradient(135deg, hsl(240 18% 13% / 0.92), hsl(240 22% 9% / 0.82))",
+          border: "1px solid hsl(260 28% 28% / 0.65)",
           boxShadow: imageUrl
-            ? "0 0 60px hsl(260 80% 70% / 0.25), 0 0 120px hsl(200 90% 65% / 0.1), inset 0 1px 0 hsl(260 60% 75% / 0.1)"
-            : "0 8px 32px hsl(240 25% 4% / 0.6), inset 0 1px 0 hsl(240 30% 20% / 0.1)",
+            ? "0 0 60px hsl(260 80% 72% / 0.28), 0 0 120px hsl(200 90% 65% / 0.12), inset 0 1px 0 hsl(260 60% 78% / 0.12)"
+            : "0 8px 32px hsl(240 20% 5% / 0.5), inset 0 1px 0 hsl(240 28% 28% / 0.12)",
         }}
       >
         {/* Inner portal ring */}
         <div
           className="absolute inset-3 rounded-xl pointer-events-none"
           style={{
-            border: "1px solid hsl(260 60% 50% / 0.1)",
+            border: "1px solid hsl(260 55% 52% / 0.12)",
             boxShadow: "inset 0 0 40px hsl(260 80% 70% / 0.05)",
           }}
         />
@@ -116,9 +116,9 @@ export function DreamPortal({ imageUrl, isLoading, error }: DreamPortalProps) {
                 }}
               />
             </div>
-            <p className="font-serif italic text-sm text-center px-6" style={{ color: "hsl(220, 20%, 50%)" }}>
+            <p className="font-serif italic text-sm text-center px-6" style={{ color: "hsl(220, 20%, 68%)" }}>
               {t("portal.idleTitle")}<br />
-              <span style={{ fontSize: "0.75rem", color: "hsl(220, 15%, 38%)" }}>
+              <span style={{ fontSize: "0.75rem", color: "hsl(220, 15%, 52%)" }}>
                 {t("portal.idleSubtitle")}
               </span>
             </p>

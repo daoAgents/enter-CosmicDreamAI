@@ -94,7 +94,7 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
 
         {/* Bottom row */}
         <div className="relative flex items-center justify-between px-5 pb-5 pt-1" style={{ zIndex: 1 }}>
-          <span className="text-xs" style={{ color: "hsl(220, 15%, 40%)", fontFamily: "Inter, sans-serif" }}>
+          <span className="text-xs" style={{ color: "hsl(220, 15%, 55%)", fontFamily: "Inter, sans-serif" }}>
             {dream.length > 0 && <>{t("input.chars", { count: dream.length })} &nbsp;·&nbsp; </>}
             <span style={{ opacity: 0.6 }}>{t("input.shortcut")}</span>
           </span>
@@ -148,7 +148,7 @@ export function DreamInput({ onVisualize, isLoading }: DreamInputProps) {
 
       {/* Hint text */}
       <p className="text-center mt-4 text-xs" style={{
-        color: "hsl(220, 15%, 35%)",
+        color: "hsl(220, 15%, 48%)",
         fontFamily: "Inter, sans-serif",
         fontWeight: 300,
         letterSpacing: "0.05em",

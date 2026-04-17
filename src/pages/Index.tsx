@@ -116,7 +116,7 @@ const Index = () => {
               style={{
                 fontSize: "1.15rem",
                 lineHeight: 1.7,
-                color: "hsl(220, 20%, 55%)",
+                color: "hsl(220, 20%, 65%)",
                 maxWidth: "480px",
                 margin: "0 auto",
               }}
@@ -198,7 +198,7 @@ const Index = () => {
         {/* Footer */}
         <div className="pb-8 pt-4 flex items-center justify-center">
           <p className="text-xs" style={{
-            color: "hsl(220, 15%, 28%)",
+            color: "hsl(220, 15%, 40%)",
             fontFamily: "Inter, sans-serif",
             fontWeight: 300,
             letterSpacing: "0.05em",

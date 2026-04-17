@@ -112,16 +112,16 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
       <div
         className="flex-1 rounded-2xl overflow-hidden flex flex-col"
         style={{
-          background: "linear-gradient(135deg, hsl(240 20% 9% / 0.9), hsl(240 25% 6% / 0.8))",
+          background: "linear-gradient(135deg, hsl(240 18% 14% / 0.92), hsl(240 22% 10% / 0.82))",
           backdropFilter: "blur(24px)",
-          border: "1px solid hsl(240 30% 18% / 0.6)",
-          boxShadow: "0 8px 40px hsl(240 25% 4% / 0.7), inset 0 1px 0 hsl(260 60% 75% / 0.06)",
+          border: "1px solid hsl(240 28% 26% / 0.7)",
+          boxShadow: "0 8px 40px hsl(240 20% 5% / 0.6), inset 0 1px 0 hsl(260 60% 78% / 0.09)",
         }}
       >
         {/* Card header */}
         <div
           className="flex items-center gap-3 px-6 py-4 shrink-0"
-          style={{ borderBottom: "1px solid hsl(240 25% 15% / 0.5)" }}
+          style={{ borderBottom: "1px solid hsl(240 22% 22% / 0.6)" }}
         >
           <div className="flex gap-1">
             {[1, 2, 3].map((i) => (
@@ -177,14 +177,14 @@ export function DreamInterpretation({ interpretation, isLoading, error, isComple
               </div>
               <p
                 className="font-serif italic text-center"
-                style={{ color: "hsl(220, 15%, 45%)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "280px" }}
+                style={{ color: "hsl(220, 15%, 62%)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: "280px" }}
               >
                 {t("oracle.idle")}
               </p>
               <p
                 className="text-xs text-center"
                 style={{
-                  color: "hsl(220, 15%, 32%)",
+                  color: "hsl(220, 15%, 48%)",
                   fontFamily: "Inter, sans-serif",
                   fontWeight: 300,
                   maxWidth: "240px",
