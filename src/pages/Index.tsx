@@ -1,5 +1,7 @@
 import { useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Orbit } from "lucide-react";
 import { StarfieldCanvas } from "@/components/StarfieldCanvas";
 import { FloatingCrystals } from "@/components/FloatingCrystals";
 import { NebulaBackground } from "@/components/NebulaBackground";
@@ -56,8 +58,22 @@ const Index = () => {
       <StarfieldCanvas />
       <FloatingCrystals />
 
-      {/* Language switcher — fixed top right */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Language switcher + Tao game link — fixed top right */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <Link
+          to="/tao"
+          className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-all hover:opacity-80"
+          style={{
+            background: "linear-gradient(135deg, hsl(240 18% 16% / 0.85), hsl(240 15% 11% / 0.7))",
+            border: "1px solid hsl(260 50% 40% / 0.4)",
+            color: "hsl(260 65% 68%)",
+            fontFamily: "Inter, sans-serif",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <Orbit size={12} />
+          太初
+        </Link>
         <LanguageSwitcher />
       </div>
 

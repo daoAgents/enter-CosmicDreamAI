@@ -1,4 +1,5 @@
 import Index from "./pages/Index";
+import TaoGame from "./pages/TaoGame";
 import NotFound from "./pages/NotFound";
 
 export const routers = [
@@ -6,6 +7,11 @@ export const routers = [
       path: "/",
       name: 'home',
       element: <Index />,
+    },
+    {
+      path: "/tao",
+      name: 'tao',
+      element: <TaoGame />,
     },
     /* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */
     {
