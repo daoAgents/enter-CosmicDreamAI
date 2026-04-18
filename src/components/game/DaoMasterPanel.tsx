@@ -1,42 +1,188 @@
-import { useEffect, useRef, useState } from "react";
-import { X, MessageCircle } from "lucide-react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { X, MessageCircle, Copy, Check } from "lucide-react";
 
 const DAO_YAN_URL = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro/";
+const DAO_YAN_ORIGIN = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro";
 
 interface DaoMasterPanelProps {
   contextQuery?: string;
   onClearQuery?: () => void;
 }
 
+function QueryBanner({
+  query,
+  onDismiss,
+}: {
+  query: string;
+  onDismiss: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [visible, setVisible] = useState(true);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(query);
+    } catch {
+      // Fallback for browsers that block clipboard
+      const el = document.createElement("textarea");
+      el.value = query;
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
+    setCopied(true);
+    // Auto-dismiss banner after 3s
+    setTimeout(() => {
+      setVisible(false);
+      setTimeout(onDismiss, 400);
+    }, 3000);
+  }
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className="flex-shrink-0 animate-fade-in"
+      style={{
+        borderBottom: "1px solid hsl(260 50% 35% / 0.4)",
+        background: "linear-gradient(135deg, hsl(260 35% 14% / 0.95), hsl(240 28% 10% / 0.9))",
+        padding: "10px 14px",
+        transition: "opacity 0.4s ease",
+        opacity: visible ? 1 : 0,
+      }}
+    >
+      {/* Label */}
+      <div className="flex items-center justify-between mb-2">
+        <span
+          className="text-xs tracking-wide"
+          style={{
+            color: "hsl(260 60% 68%)",
+            fontFamily: "Inter, sans-serif",
+            letterSpacing: "0.08em",
+          }}
+        >
+          ✦ 已为你准备好问题
+        </span>
+        <button
+          onClick={() => { setVisible(false); setTimeout(onDismiss, 400); }}
+          style={{ color: "hsl(220 15% 40%)", lineHeight: 1 }}
+        >
+          <X size={12} />
+        </button>
+      </div>
+
+      {/* Question text */}
+      <p
+        className="font-serif leading-relaxed mb-3"
+        style={{
+          fontSize: "0.78rem",
+          color: "hsl(220 20% 78%)",
+          lineHeight: 1.65,
+          wordBreak: "break-all",
+        }}
+      >
+        {query}
+      </p>
+
+      {/* Copy button + hint */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all duration-200"
+          style={{
+            background: copied
+              ? "hsl(160 60% 25% / 0.5)"
+              : "hsl(260 60% 35% / 0.4)",
+            border: `1px solid ${copied ? "hsl(160 60% 40% / 0.5)" : "hsl(260 60% 55% / 0.4)"}`,
+            color: copied ? "hsl(160 65% 65%)" : "hsl(260 70% 75%)",
+            fontFamily: "Inter, sans-serif",
+          }}
+        >
+          {copied ? <Check size={11} /> : <Copy size={11} />}
+          {copied ? "已复制" : "一键复制"}
+        </button>
+        {copied && (
+          <span
+            className="text-xs animate-fade-in"
+            style={{ color: "hsl(160 55% 52%)", fontFamily: "Inter, sans-serif" }}
+          >
+            请粘贴至下方对话框 ↓
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [iframeSrc, setIframeSrc] = useState(DAO_YAN_URL);
+  const [activeQuery, setActiveQuery] = useState<string | undefined>(undefined);
+  const [iframeReady, setIframeReady] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const prevQueryRef = useRef<string | undefined>(undefined);
 
-  // When a context query arrives, open the panel and update the iframe src
+  // Attempt postMessage injection when both iframe is ready and a query exists
+  const tryPostMessage = useCallback((query: string) => {
+    if (!iframeRef.current?.contentWindow) return;
+    try {
+      // Try common chat input injection patterns
+      iframeRef.current.contentWindow.postMessage(
+        { type: "ENTER_CHAT_INPUT", message: query },
+        DAO_YAN_ORIGIN
+      );
+      // Also try a broader format in case the app uses a different event shape
+      iframeRef.current.contentWindow.postMessage(
+        { type: "SET_INPUT", value: query },
+        DAO_YAN_ORIGIN
+      );
+    } catch {
+      // Cross-origin postMessage can throw in some sandboxed environments — ignore
+    }
+  }, []);
+
+  // When a new context query arrives, open the panel and show the banner
   useEffect(() => {
     if (contextQuery && contextQuery !== prevQueryRef.current) {
       prevQueryRef.current = contextQuery;
-      const encoded = encodeURIComponent(contextQuery);
-      setIframeSrc(`${DAO_YAN_URL}?q=${encoded}`);
+      setActiveQuery(contextQuery);
       setIsOpen(true);
     }
   }, [contextQuery]);
 
+  // Once iframe is ready and we have a query, try postMessage
+  useEffect(() => {
+    if (iframeReady && activeQuery) {
+      // Small delay to let the iframe's React app fully hydrate
+      const t = setTimeout(() => tryPostMessage(activeQuery), 800);
+      return () => clearTimeout(t);
+    }
+  }, [iframeReady, activeQuery, tryPostMessage]);
+
   function handleOpen() {
     setIsOpen(true);
-    setIframeSrc(DAO_YAN_URL);
   }
 
   function handleClose() {
     setIsOpen(false);
+    setActiveQuery(undefined);
+    onClearQuery?.();
+  }
+
+  function handleIframeLoad() {
+    setIframeReady(true);
+  }
+
+  function handleDismissBanner() {
+    setActiveQuery(undefined);
     onClearQuery?.();
   }
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Trigger button */}
       <button
         onClick={handleOpen}
         className="flex items-center gap-2 rounded-xl px-4 py-2.5 transition-all duration-300 hover:scale-105"
@@ -49,10 +195,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
         title="向道衍问道"
       >
         <MessageCircle size={16} style={{ color: "hsl(260 80% 70%)" }} />
-        <span
-          className="font-serif text-sm"
-          style={{ color: "hsl(260 70% 72%)" }}
-        >
+        <span className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>
           问道师
         </span>
         <span
@@ -81,7 +224,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
       <div
         className="fixed top-0 right-0 h-full z-50 flex flex-col"
         style={{
-          width: "min(420px, 100vw)",
+          width: "min(440px, 100vw)",
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           background: "hsl(240 22% 8%)",
@@ -105,14 +248,13 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
                 border: "1px solid hsl(260 60% 50% / 0.4)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 boxShadow: "0 0 12px hsl(260 80% 55% / 0.3)",
+                fontSize: "0.9rem",
               }}
             >
-              <span style={{ fontSize: "0.9rem" }}>☯</span>
+              ☯
             </div>
             <div>
-              <p className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>
-                道衍
-              </p>
+              <p className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>道衍</p>
               <p className="text-xs" style={{ color: "hsl(220 15% 42%)", fontFamily: "Inter, sans-serif" }}>
                 帛书老子智慧修行平台
               </p>
@@ -130,14 +272,20 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
           </button>
         </div>
 
+        {/* Query banner — shown when there's a context query */}
+        {activeQuery && isOpen && (
+          <QueryBanner query={activeQuery} onDismiss={handleDismissBanner} />
+        )}
+
         {/* Iframe */}
         <div className="flex-1 relative overflow-hidden">
           <iframe
             ref={iframeRef}
-            src={iframeSrc}
+            src={DAO_YAN_URL}
             className="w-full h-full border-0"
             title="道衍 — 帛书老子智慧平台"
             allow="clipboard-write"
+            onLoad={handleIframeLoad}
           />
         </div>
       </div>
