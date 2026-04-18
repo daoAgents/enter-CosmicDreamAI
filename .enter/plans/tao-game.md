@@ -99,25 +99,57 @@ interface CosmicEvent {
 - 抽屉宽度：桌面端 420px，移动端全屏
 - iframe 100% 高度，无边框，深色主题融合
 
-### 上下文感知交互
-当游戏发生关键事件时，自动构建带游戏上下文的预填问题 URL：
-```
-https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro/?q=<encoded_question>
-```
-例如：
-- 进入「两仪」阶段 → 预填：「阴阳分判在帛书老子中是如何描述的？」
-- 触发创世事件后 → 预填：「<事件名称>这一宇宙演化在道德经第几章有体现？」
-- 点击天道录中任意事件卡片 → 预填：该事件相关的帛书章节问题
+---
 
-### 新增组件
+## 道衍集成修复方案
+
+### 根本原因
+道衍是 React SPA（只有 `/` 路由），`?q=encoded_query` URL 参数不被任何路由处理器读取，iframe src 更新不会触发问题预填。
+
+### 修复策略：双层保障
+
+**Layer 1 — postMessage（最优，无感）**  
+iframe 加载完成后，向其 `contentWindow` 发送结构化消息：
+```javascript
+iframeRef.current?.contentWindow?.postMessage(
+  { type: 'ENTER_CHAT_INPUT', message: query },
+  'https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro'
+)
 ```
-src/components/game/DaoMasterPanel.tsx  # 道衍iframe抽屉面板
+如果道衍的聊天框架监听此事件，即可自动填充 — 零用户操作。
+
+**Layer 2 — 可见复制条（100% 可靠兜底）**  
+当 `contextQuery` 存在时，在 iframe 上方展示醒目的「问题横幅」：
+- 完整问题文本（可滚动，白色衬线字体）
+- 「一键复制」按钮（点击后变为 ✓ 已复制）
+- 提示文字：「已复制，请粘贴至下方对话框 ↓」
+- 横幅在用户点击复制后 3 秒自动淡出，不遮挡对话
+
+### 修改文件
+只修改 `src/components/game/DaoMasterPanel.tsx`：
+
+1. **移除**：`setIframeSrc` 拼接 `?q=` 参数的逻辑
+2. **添加**：`iframeRef` 上 `onLoad` 事件 → 发送 postMessage
+3. **添加**：`QueryBanner` 内联组件 — 问题文本展示 + 复制按钮 + 淡出动画
+4. **保持**：iframe 始终指向固定 URL（无参数），避免重新加载
+
+### 交互流程（修复后）
 ```
-**功能：**
-- `isOpen` 状态控制抽屉开关
-- `contextQuery` prop 接收游戏上下文字符串
-- 构建带 `?q=` 参数的完整 URL 并更新 iframe src
-- 「问道师」按钮样式：glassmorphism，道家纹路图标
+用户点击事件卡片「问道」按钮
+    → DaoMasterPanel 滑出
+    → 面板顶部出现「问题横幅」（含问题文字 + 复制按钮）
+    → 同时尝试 postMessage 注入（如道衍支持，自动填充）
+    → 用户点击「复制」 → 粘贴进道衍输入框
+    → 横幅 3 秒后淡出
+```
+
+### 验证
+- 点击事件卡片「问道」→ 面板滑出 → 顶部横幅显示正确问题文本
+- 点击「一键复制」→ 文字变 ✓ → 可粘贴至道衍对话框
+- 直接点击「问道师」按钮（无 query）→ 无横幅，直接显示 iframe
+- 横幅 3 秒自动淡出不影响 iframe 交互
+
+
 
 ---
 
