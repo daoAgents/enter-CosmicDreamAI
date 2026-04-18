@@ -28,12 +28,42 @@
 - **可交互宇宙观**：按阶段点击/拖拽阴阳球体，实时影响资源积累
 - **AI 化生叙事**：每次触发化生，Claude 生成对应阶段的诗意中文叙述 + Seedream 生成宇宙图像
 - **天地裂开仪式**：阶段晋升时全屏「天地裂开」动画，阶段专属配色与帛书引文
-- **道衍智能体集成**：直连道衍 AI 对话 API，流式回答，完整多轮对话历史
+- **道衍智能体集成**：直连道衍 AI 对话 REST API（SSE 流式解析），多轮对话历史，问道后答案自动存入游戏内「天道录」卷轴档案
 - **中英双语切换**：界面与 AI 叙事均跟随语言切换
 
 ---
 
-## Screenshots
+## 道衍集成架构
+
+**道衍**（Dao Yan）是一个专注于帛书老子解读的 AI 智能体，通过以下方式深度嵌入游戏：
+
+| 环节 | 交互方式 |
+|------|---------|
+| **问道入口** | 每条化生事件卡片右下角有「问道」按钮，点击自动将当前阶段 + 行动语境拼装为问题发送 |
+| **API 直连** | 浏览器直接调用 `daoyan-agent-api` REST 接口（Bearer Anon Key，CORS 已开放），无需代理 |
+| **流式回答** | 使用 `stream:true` + `ReadableStream` 读取 Claude SSE 格式，逐字流入聊天框 |
+| **多轮对话** | 完整维护 `conversation_history` 数组，支持用户追问 |
+| **天道录存档** | 每次对话结束后，问答对自动保存至游戏右侧「天道录」标签页，以卷轴形式永久留存（localStorage 持久化） |
+
+```
+游戏行动 ──► 「问道」按钮 ──► 道衍 API (stream)
+                                    │
+                          SSE content_block_delta
+                                    │
+                        ┌───────────▼───────────┐
+                        │   道衍侧栏聊天气泡      │
+                        └───────────┬───────────┘
+                     streaming 结束  │
+                                    ▼
+                        ┌───────────────────────┐
+                        │   天道录（游戏右侧面板）  │
+                        │   问 + 道衍曰 卷轴存档   │
+                        └───────────────────────┘
+```
+
+> API Docs: https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro/api-docs
+
+---
 
 ### AI Dream Visualizer
 ![Dream Visualizer](./assets/screenshots/dream-visualizer.png)
@@ -103,7 +133,7 @@
 | UI | shadcn/ui + Tailwind CSS (深空设计系统) |
 | AI 文本 | Claude Opus 4.7 (SSE 流式传输) |
 | AI 图像 | Seedream 4.5 |
-| AI 对话 | 道衍 Agent REST API |
+| AI 对话 | 道衍 Agent REST API（SSE 流式 + 天道录存档） |
 | 后端 | Supabase Edge Functions (Deno) |
 | i18n | react-i18next (中英双语) |
 | 状态管理 | useReducer + localStorage |
