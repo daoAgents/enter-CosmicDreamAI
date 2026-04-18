@@ -1,117 +1,62 @@
-# Cosmos Interactive Click Plan
+# 复盘 · 测试 · 推送
 
 ## Context
-User wants the CosmosView visualization to be directly interactive — clicking/dragging the cosmic orbs should affect yin/yang resources, making the game feel tactile and alive.
-
-## Goal
-Make each stage's CosmosView visualization respond to clicks and drags with:
-1. Visual feedback (ripple rings, glow bursts)
-2. Actual resource gain based on which element was clicked
-3. Rate limiting to prevent spam-clicking
+全部功能开发完毕，需要做最终质检：运行 Lint、功能复盘、确认 GitHub 同步。
 
 ---
 
-## Stage-by-Stage Mechanics
+## 复盘 —— 本次完整构建内容
 
-| Stage | Element | Click Effect | Drag Effect |
-|-------|---------|-------------|-------------|
-| 0 | Void dot | Trigger Wu Wei (same as button) | — |
-| 1 | Unified sphere | +4 yin +4 yang (2s cooldown) | — |
-| 2 | Yang orb (gold) | +5 yang | Drag away from center → on release: burst up to +10 yang |
-| 2 | Yin orb (dark) | +5 yin | Drag away from center → on release: burst up to +10 yin |
-| 3 | Yang orb | +3 yang | — |
-| 3 | Yin orb | +3 yin | — |
-| 3 | Zhong Qi center | +2 zhongqi | — |
-| 4 | Any orbiting particle | +1 yin or yang (random) | — |
+### 1. AI Dream Visualizer（梦境可视化）
+- Edge Function `ai-dream-analyze`：Claude Opus 4.7 流式诗意解析
+- Edge Function `ai-dream-image`：Seedream 4.5 生成梦境图像
+- 深空午夜设计系统（index.css + tailwind.config.ts）
+- 交互式星空粒子画布（鼠标跟随）、悬浮水晶、星云背景
 
-Rate limit: 800ms cooldown per clickable element.
+### 2. 道德经宇宙养成游戏（`/tao`）
+- **5 阶段状态机**：混沌·道 → 太极·一 → 两仪·阴阳 → 三才·中气 → 万物·化生
+- **资源系统**：阴/阳自动积累 + 中气（化生触发）
+- **3 种行动**：无为而化 / 守中和合 / 化生演化
+- **AI 宇宙叙事**：Claude Opus 4.7 生成中/英文叙事 + Seedream 4.5 图像
+- **宇宙观交互**（CosmosView）：按阶段可点击/拖拽，直接影响阴阳资源 + 涟漪粒子反馈
+- **晋升仪式**（StageTransition）：全屏天地裂开动画，阶段专属配色 + 帛书引文
+- **道衍 AI 集成**（DaoMasterPanel）：直接调用 REST API，流式回答，多轮对话，自动发送「问道」上下文
+- **中/英双语**：73 个 i18n key，AI 叙事随语言切换
+- **localStorage 持久化**（含格式版本校验）
 
----
-
-## Visual Feedback
-
-### Ripple Ring
-- On click: an expanding semi-transparent ring appears at click position, animates outward, fades in ~600ms
-- Implemented as a temporary `<div>` injected into CosmosView with CSS keyframe `ripple-expand`
-- Color matches the resource gained (yin = indigo, yang = gold, zhongqi = green)
-
-### Resource Float Text
-- "+5 阳" floats up from click position and fades out in 800ms
-- Small text, colored to match resource
-- Implemented as an absolutely-positioned span with CSS keyframe `float-up-fade`
-
-### Orb Glow Pulse
-- Clicked orb briefly scales to 1.2× then returns (CSS transition)
-- Glow intensity peaks for 200ms then returns
-
-### Stage 2 Drag
-- Clicked orb follows cursor position (capped at 60px from center)
-- Shows a "tension line" between orb and center
-- On release: orb snaps back + ripple burst proportional to drag distance
+### 3. 历次修复
+- 暗主题亮度优化
+- 中文模式混入英文修复（StageDisplay 副标题、ActionPanel sub-label、ResourcePanel）
+- 空白页修复（min-h-full → min-h-screen、变量遮蔽、null 守卫）
+- AI 叙事默认英文问题修复
 
 ---
 
-## Implementation Plan
+## 执行步骤
 
-### 1. `src/hooks/useGameState.ts`
-Add new action and dispatcher:
-```typescript
-| { type: "COSMOS_TOUCH"; resource: "yin" | "yang" | "zhongqi"; amount: number }
+### Step 1 — 运行 Lint
 ```
-In reducer `COSMOS_TOUCH`: clamp resources.
-Export `doCosmosTouch(resource, amount)`.
-
-### 2. `src/components/game/CosmosView.tsx`
-**Complete rewrite** — keep all existing visuals, add:
-- `onTouch?: (resource: "yin" | "yang" | "zhongqi", amount: number) => void` prop
-- `onTriggerWuwei?: () => void` prop (for stage 0 click)
-- Per-element click handlers with 800ms cooldown tracking via `useRef<Record<string, number>>`
-- Ripple state: `ripples: Array<{id, x, y, color}>` — each renders as expanding ring
-- Float text state: `floats: Array<{id, x, y, label, color}>`
-- Stage 2 drag state: `dragState: {active, orb, startX, startY, currentX, currentY} | null`
-- CSS keyframes added inline via `<style>` tag inside component or added to `index.css`
-
-### 3. `src/pages/TaoGame.tsx`
-Pass new props to CosmosView:
-```tsx
-<CosmosView
-  stage={state.stage}
-  yin={state.yin}
-  yang={state.yang}
-  zhongqi={state.zhongqi}
-  onTouch={doCosmosTouch}
-  onTriggerWuwei={doWuwei}
-/>
+run_lint()
 ```
+修复全部错误（warning 可忽略）。
 
-### 4. `src/index.css`
-Add two new keyframes:
-```css
-@keyframes ripple-expand {
-  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
-}
-@keyframes float-up-fade {
-  0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-40px); }
-}
+### Step 2 — 功能自检清单
+逐项目视觉核查：
+- [ ] `/` 梦境页：输入框、AI 解析流式输出、图像生成
+- [ ] `/tao` 游戏页加载正常（非空白）
+- [ ] 中文切换：所有文本均为中文，无英文混杂
+- [ ] 宇宙观：各阶段可点击，数字气泡飘出
+- [ ] 晋升仪式：ActionPanel 晋升按钮触发全屏动画
+- [ ] 道衍聊天：点击「问道」自动发送，流式回复
+
+### Step 3 — 确认 GitHub 推送
+```bash
+git push github main
 ```
+（当前 github/main 已和 main 同步，push 为空操作，但执行以明确确认）
 
 ---
 
-## Files to Modify
-1. `src/hooks/useGameState.ts` — add `COSMOS_TOUCH` action + `doCosmosTouch`
-2. `src/components/game/CosmosView.tsx` — complete rewrite with interactivity
-3. `src/pages/TaoGame.tsx` — pass new props to CosmosView
-4. `src/index.css` — add `ripple-expand` and `float-up-fade` keyframes
-
----
-
-## Verification
-- Click yin orb in stage 2 → yin bar increases by 5
-- Click yang orb in stage 2 → yang bar increases by 5
-- Ripple ring appears and fades within 600ms
-- Float text "+5 阳" appears and fades within 800ms
-- Rate limiting works: rapid clicking doesn't stack (800ms cooldown per element)
-- Stage 0 click triggers Wu Wei (game starts)
-- Stage 2 drag: dragging orb shows tension, release causes burst
+## 验证
+- Lint：0 errors
+- git push：`Everything up-to-date` 或新提交成功推送
