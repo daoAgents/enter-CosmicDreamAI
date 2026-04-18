@@ -60,12 +60,15 @@ export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps)
       >
         {isZh ? info.zh : info.en}
       </h2>
-      <p
-        className="font-serif italic text-sm"
-        style={{ color: "hsl(220 15% 55%)", letterSpacing: "0.05em" }}
-      >
-        {isZh ? info.en : info.zh}
-      </p>
+      {/* English subtitle — only show in English mode */}
+      {!isZh && (
+        <p
+          className="font-serif italic text-sm"
+          style={{ color: "hsl(220 15% 55%)", letterSpacing: "0.05em" }}
+        >
+          {info.zh}
+        </p>
+      )}
       <p
         className="text-xs mt-1"
         style={{ color: "hsl(220 15% 40%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.1em" }}
