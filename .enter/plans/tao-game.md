@@ -175,3 +175,80 @@ iframeRef.current?.contentWindow?.postMessage(
 6. 刷新页面后游戏状态从 localStorage 恢复
 7. 「问道」按钮点击后滑出道衍抽屉，iframe 正常加载
 8. 点击事件卡片后，道衍 iframe 自动填充相关问题
+
+---
+
+## /tao 页面中英文切换
+
+### Context
+游戏所有组件均为硬编码中文字符串。已有 react-i18next 单一 `translation` 命名空间方案（i18n/config.ts）。`LanguageSwitcher` 组件和配置均可直接复用。
+
+### 字符串审计（8个文件）
+| 文件 | 字符串数 |
+|------|---------|
+| `TaoGame.tsx` | 标题/副标题/导航/欢迎屏/错误回调 |
+| `StageDisplay.tsx` | 中气/化生进度标签、满级文案；STAGE_NAMES.desc 需加 descEn |
+| `ResourcePanel.tsx` | 2个标题变体 |
+| `ActionPanel.tsx` | 面板标题、3个操作按钮（label/subLabel/desc×3变体）、突破按钮 |
+| `EventLog.tsx` | 天道录标题、空状态、图像加载、文字加载、问道按钮、问道query模板、3个ACTION_LABELS |
+| `DaoMasterPanel.tsx` | 7个字符串（横幅、复制、面板标题等）|
+
+### 实施步骤（8个文件）
+
+**1. `src/i18n/locales/en.json` + `zh.json`**  
+在两个文件中添加顶层 `"tao"` 对象，包含以下所有 key（注意 parity 必须一致）：
+```
+tao.title / tao.subtitle / tao.error
+tao.nav.dream / tao.nav.reset / tao.nav.resetTitle
+tao.welcome.title / .desc / .chapter / .taoQuote / .startHint
+tao.resources.title_idle / .title_active
+tao.actions.title
+tao.actions.wuwei_label / .wuwei_sub / .wuwei_desc_0 / .wuwei_desc
+tao.actions.shouzh_label / .shouzh_sub / .shouzh_desc_can / .shouzh_desc_need ({{yin}},{{yang}})
+tao.actions.huasheng_label / .huasheng_sub / .huasheng_desc_can / .huasheng_desc_loading / .huasheng_desc_need ({{zhongqi}})
+tao.actions.advance
+tao.stage.zhongqi_label ({{current}},{{max}}) / .events_label / .max_caption
+tao.eventlog.title / .empty_desc / .image_loading / .text_loading
+tao.eventlog.ask_button / .ask_query ({{stageName}},{{actionLabel}})
+tao.eventlog.action_wuwei / .action_shouzh / .action_huasheng
+tao.daomaster.button_label / .button_tag / .panel_title / .panel_subtitle
+tao.daomaster.query_banner_label / .copy_button / .copied / .copy_hint
+```
+
+**2. `src/hooks/useGameState.ts`**  
+STAGE_NAMES 每条加 `descEn: string` 字段（英文描述）。
+
+**3. `src/pages/TaoGame.tsx`**  
+- `import { useTranslation } from "react-i18next"` + `import { LanguageSwitcher }`  
+- `const { t, i18n } = useTranslation()`  
+- 顶部导航栏加 `<LanguageSwitcher />` 按钮  
+- 替换所有硬编码字符串为 `t('tao.*')`
+
+**4. `src/components/game/StageDisplay.tsx`**  
+- 加 `useTranslation` + 读取 `i18n.language`  
+- 阶段名: `i18n.language === 'zh' ? info.zh : info.en`  
+- desc: `i18n.language === 'zh' ? info.desc : info.descEn`  
+- 进度标签: `t('tao.stage.zhongqi_label', { current, max })`
+
+**5. `src/components/game/ResourcePanel.tsx`**  
+- `useTranslation`, 替换 2 个标题字符串
+
+**6. `src/components/game/ActionPanel.tsx`**  
+- `useTranslation`, 替换全部 label/desc 字符串（含动态值插值）
+
+**7. `src/components/game/EventLog.tsx`**  
+- `useTranslation` + `useTranslation` → `i18n.language`  
+- ACTION_LABELS 改为从 t() 获取  
+- `stageName` 根据语言选 `.zh` or `.en`  
+- query 模板改为 `t('tao.eventlog.ask_query', { stageName, actionLabel })`  
+- 替换所有静态字符串
+
+**8. `src/components/game/DaoMasterPanel.tsx`**  
+- `useTranslation`, 替换全部字符串
+
+### 验证
+- 切换到 EN：TaoGame、所有子组件文字全部变英文
+- 切回 ZH：恢复中文
+- 语言设置 localStorage 持久化（key `dream-lang`）
+- parity 检查：`tao.*` key 数在 zh/en 完全相同
+- console 无 missing key 警告
