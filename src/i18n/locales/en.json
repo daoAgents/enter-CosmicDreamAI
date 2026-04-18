@@ -98,6 +98,7 @@
       "question_label": "Q",
       "answer_label": "Dao Yan"
     },
+    "daomaster": {
       "button_label": "Ask Master",
       "button_tag": "Dao Yan",
       "panel_title": "Dao Yan",
