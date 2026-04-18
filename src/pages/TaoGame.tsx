@@ -70,7 +70,7 @@ export default function TaoGame() {
   const stageEvents = state.events.filter((e) => e.stage === state.stage).length;
 
   return (
-    <div className="min-h-full relative overflow-x-hidden">
+    <div className="min-h-screen relative overflow-x-hidden">
       <NebulaBackground />
       <StarfieldCanvas />
 

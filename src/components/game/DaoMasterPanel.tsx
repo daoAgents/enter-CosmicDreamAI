@@ -144,8 +144,8 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
 
   useEffect(() => {
     if (iframeReady && activeQuery) {
-      const t = setTimeout(() => tryPostMessage(activeQuery), 800);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => tryPostMessage(activeQuery), 800);
+      return () => clearTimeout(timer);
     }
   }, [iframeReady, activeQuery, tryPostMessage]);
 

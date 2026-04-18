@@ -164,6 +164,22 @@ function loadFromStorage(): GameState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<GameState>;
+      // Validate stage is in range 0-4
+      const stage = parsed.stage;
+      if (stage !== undefined && (typeof stage !== "number" || stage < 0 || stage > 4)) {
+        localStorage.removeItem(STORAGE_KEY);
+        return INITIAL_STATE;
+      }
+      // Validate events have valid stage values
+      if (parsed.events) {
+        const valid = parsed.events.every(
+          (e) => e && typeof e.stage === "number" && e.stage >= 0 && e.stage <= 4
+        );
+        if (!valid) {
+          localStorage.removeItem(STORAGE_KEY);
+          return INITIAL_STATE;
+        }
+      }
       return { ...INITIAL_STATE, ...parsed };
     }
   } catch { /* ignore */ }

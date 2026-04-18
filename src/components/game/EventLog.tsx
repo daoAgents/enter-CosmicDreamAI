@@ -71,8 +71,8 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
       </div>
 
       {events.map((event, i) => {
-        const stageColor = STAGE_COLORS[event.stage];
-        const stageInfo = STAGE_NAMES[event.stage];
+        const stageInfo = STAGE_NAMES[event.stage] ?? STAGE_NAMES[4];
+        const stageColor = STAGE_COLORS[event.stage] ?? STAGE_COLORS[4];
         const stageName = isZh ? stageInfo.zh : stageInfo.en;
         const actionLabel = ACTION_LABELS[event.actionType] ?? ACTION_LABELS.huasheng;
         const query = t("tao.eventlog.ask_query", { stageName, actionLabel });
