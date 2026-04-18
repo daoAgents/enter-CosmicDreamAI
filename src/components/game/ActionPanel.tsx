@@ -72,12 +72,14 @@ function ActionButton({
             >
               {label}
             </span>
-            <span
-              className="text-xs"
-              style={{ color: disabled ? "hsl(220 15% 28%)" : "hsl(220 15% 50%)", fontFamily: "Inter, sans-serif" }}
-            >
-              {subLabel}
-            </span>
+            {subLabel && (
+              <span
+                className="text-xs"
+                style={{ color: disabled ? "hsl(220 15% 28%)" : "hsl(220 15% 50%)", fontFamily: "Inter, sans-serif" }}
+              >
+                {subLabel}
+              </span>
+            )}
           </div>
           <p
             className="text-xs mt-0.5 truncate"

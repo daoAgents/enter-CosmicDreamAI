@@ -14,6 +14,7 @@ function ResourceBar({
   color,
   glowColor,
   bgColor,
+  showEnLabel,
 }: {
   label: string;
   labelEn: string;
@@ -21,6 +22,7 @@ function ResourceBar({
   color: string;
   glowColor: string;
   bgColor: string;
+  showEnLabel: boolean;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -29,12 +31,14 @@ function ResourceBar({
           <span className="font-serif text-sm font-medium" style={{ color }}>
             {label}
           </span>
-          <span
-            className="text-xs"
-            style={{ color: "hsl(220 15% 45%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}
-          >
-            {labelEn}
-          </span>
+          {showEnLabel && (
+            <span
+              className="text-xs"
+              style={{ color: "hsl(220 15% 45%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}
+            >
+              {labelEn}
+            </span>
+          )}
         </div>
         <span
           className="text-xs tabular-nums"
@@ -70,7 +74,8 @@ function ResourceBar({
 }
 
 export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const showEnLabel = i18n.language !== "zh";
 
   return (
     <div
@@ -91,6 +96,7 @@ export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps)
         color="hsl(45 90% 68%)"
         glowColor="hsl(45 90% 68% / 0.6)"
         bgColor="hsl(45 40% 15% / 0.5)"
+        showEnLabel={showEnLabel}
       />
       <ResourceBar
         label="阴"
@@ -99,6 +105,7 @@ export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps)
         color="hsl(240 70% 65%)"
         glowColor="hsl(240 70% 65% / 0.6)"
         bgColor="hsl(240 40% 12% / 0.5)"
+        showEnLabel={showEnLabel}
       />
       <ResourceBar
         label="中气"
@@ -107,6 +114,7 @@ export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps)
         color="hsl(160 70% 58%)"
         glowColor="hsl(160 70% 58% / 0.6)"
         bgColor="hsl(160 30% 12% / 0.5)"
+        showEnLabel={showEnLabel}
       />
     </div>
   );
