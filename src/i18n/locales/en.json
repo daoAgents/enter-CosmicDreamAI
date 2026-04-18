@@ -87,7 +87,17 @@
       "action_shouzh": "Shou Zhong He He",
       "action_huasheng": "Hua Sheng Yan Hua"
     },
-    "daomaster": {
+    "tabs": {
+      "events": "Cosmic Events",
+      "records": "Celestial Records"
+    },
+    "taorecords": {
+      "title": "Celestial Records",
+      "empty_title": "Awaiting Wisdom",
+      "empty_desc": "Ask Dao Yan a question — wisdom will be preserved here",
+      "question_label": "Q",
+      "answer_label": "Dao Yan"
+    },
       "button_label": "Ask Master",
       "button_tag": "Dao Yan",
       "panel_title": "Dao Yan",

@@ -16,13 +16,14 @@ interface ChatMessage {
 interface DaoMasterPanelProps {
   contextQuery?: string;
   onClearQuery?: () => void;
+  onRecordSaved?: (question: string, answer: string) => void;
 }
 
 function msgId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelProps) {
+export function DaoMasterPanel({ contextQuery, onClearQuery, onRecordSaved }: DaoMasterPanelProps) {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -31,6 +32,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
   const prevQueryRef = useRef<string | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const answerAccumRef = useRef("");
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -41,6 +43,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
     async (question: string) => {
       if (isStreaming || !question.trim()) return;
       setIsStreaming(true);
+      answerAccumRef.current = "";
 
       const userMsg: ChatMessage = { id: msgId(), role: "user", content: question };
       const assistantId = msgId();
@@ -105,6 +108,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
                 parsed.delta?.type === "text_delta" &&
                 typeof parsed.delta.text === "string"
               ) {
+                answerAccumRef.current += parsed.delta.text;
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === assistantId
@@ -127,10 +131,13 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
           )
         );
       } finally {
+        if (onRecordSaved && answerAccumRef.current.trim()) {
+          onRecordSaved(question, answerAccumRef.current.trim());
+        }
         setIsStreaming(false);
       }
     },
-    [isStreaming, messages, i18n.language]
+    [isStreaming, messages, i18n.language, onRecordSaved]
   );
 
   // Auto-send contextQuery when it arrives

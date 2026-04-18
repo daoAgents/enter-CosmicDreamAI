@@ -87,7 +87,17 @@
       "action_shouzh": "守中和合",
       "action_huasheng": "化生演化"
     },
-    "daomaster": {
+    "tabs": {
+      "events": "化生录",
+      "records": "天道录"
+    },
+    "taorecords": {
+      "title": "天道录",
+      "empty_title": "天道待启",
+      "empty_desc": "向道衍问道，智慧将在此留存",
+      "question_label": "问",
+      "answer_label": "道衍曰"
+    },
       "button_label": "问道师",
       "button_tag": "道衍",
       "panel_title": "道衍",

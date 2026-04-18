@@ -9,11 +9,13 @@ import { ResourcePanel } from "@/components/game/ResourcePanel";
 import { ActionPanel } from "@/components/game/ActionPanel";
 import { StageDisplay } from "@/components/game/StageDisplay";
 import { EventLog } from "@/components/game/EventLog";
+import { TaoRecords } from "@/components/game/TaoRecords";
 import { DaoMasterPanel } from "@/components/game/DaoMasterPanel";
 import { StageTransition } from "@/components/game/StageTransition";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useGameState } from "@/hooks/useGameState";
 import { useCosmicEvent } from "@/hooks/useCosmicEvent";
+import { useTaoRecords } from "@/hooks/useTaoRecords";
 import type { GameStage } from "@/hooks/useGameState";
 
 export default function TaoGame() {
@@ -34,6 +36,9 @@ export default function TaoGame() {
   const [isEventLoading, setIsEventLoading] = useState(false);
   const [daoQuery, setDaoQuery] = useState<string | undefined>(undefined);
   const [transitionStage, setTransitionStage] = useState<GameStage | null>(null);
+  const [activeTab, setActiveTab] = useState<"events" | "records">("events");
+  const [newRecordCount, setNewRecordCount] = useState(0);
+  const { records, addRecord } = useTaoRecords();
   const eventLogRef = useRef<HTMLDivElement>(null);
 
   const { triggerEvent } = useCosmicEvent({
@@ -82,6 +87,16 @@ export default function TaoGame() {
     tryAdvanceStage();
   }, [tryAdvanceStage]);
 
+  const handleRecordSaved = useCallback((question: string, answer: string) => {
+    addRecord(question, answer);
+    setNewRecordCount((n) => (activeTab === "records" ? 0 : n + 1));
+  }, [addRecord, activeTab]);
+
+  const handleSwitchToRecords = useCallback(() => {
+    setActiveTab("records");
+    setNewRecordCount(0);
+  }, []);
+
   const stageEvents = state.events.filter((e) => e.stage === state.stage).length;
 
   return (
@@ -123,6 +138,7 @@ export default function TaoGame() {
           <DaoMasterPanel
             contextQuery={daoQuery}
             onClearQuery={() => setDaoQuery(undefined)}
+            onRecordSaved={handleRecordSaved}
           />
           <Link
             to="/"
@@ -229,36 +245,89 @@ export default function TaoGame() {
               )}
             </div>
 
-            {/* RIGHT PANEL — Event Log */}
+            {/* RIGHT PANEL — Tabbed log */}
             <div ref={eventLogRef} className="flex-1 min-w-0">
-              {state.events.length === 0 && state.stage === 0 ? (
-                <div
-                  className="glass-strong rounded-2xl p-8 text-center"
+              {/* Tab bar */}
+              <div className="flex items-center gap-1 mb-4">
+                <button
+                  onClick={() => setActiveTab("events")}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs transition-all duration-200"
                   style={{
-                    border: "1px solid hsl(240 25% 22% / 0.4)",
-                    minHeight: 400,
-                    display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center",
-                    gap: 12,
+                    background: activeTab === "events"
+                      ? "hsl(260 50% 25% / 0.5)"
+                      : "hsl(240 18% 12% / 0.5)",
+                    border: `1px solid ${activeTab === "events" ? "hsl(260 55% 45% / 0.5)" : "hsl(240 22% 20% / 0.4)"}`,
+                    color: activeTab === "events" ? "hsl(260 70% 72%)" : "hsl(220 15% 48%)",
+                    fontFamily: "Inter, sans-serif",
+                    boxShadow: activeTab === "events" ? "0 0 12px hsl(260 60% 30% / 0.2)" : "none",
                   }}
                 >
-                  <p className="font-serif text-xl" style={{ color: "hsl(260 50% 55%)", fontWeight: 300 }}>
-                    {t("tao.welcome.title")}
-                  </p>
-                  <p className="font-serif italic text-sm" style={{ color: "hsl(220 15% 45%)", maxWidth: 300 }}>
-                    {t("tao.welcome.desc").split("\n").map((line, i) => (
-                      <span key={i}>{line}{i === 0 && <br />}</span>
-                    ))}
-                  </p>
-                  <p className="text-xs" style={{ color: "hsl(220 15% 32%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}>
-                    {t("tao.welcome.chapter")}
-                  </p>
-                </div>
+                  <span className="font-serif">{t("tao.tabs.events")}</span>
+                </button>
+                <button
+                  onClick={handleSwitchToRecords}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs transition-all duration-200"
+                  style={{
+                    background: activeTab === "records"
+                      ? "hsl(45 55% 20% / 0.5)"
+                      : "hsl(240 18% 12% / 0.5)",
+                    border: `1px solid ${activeTab === "records" ? "hsl(45 60% 40% / 0.5)" : "hsl(240 22% 20% / 0.4)"}`,
+                    color: activeTab === "records" ? "hsl(45 75% 68%)" : "hsl(220 15% 48%)",
+                    fontFamily: "Inter, sans-serif",
+                    boxShadow: activeTab === "records" ? "0 0 12px hsl(45 50% 25% / 0.2)" : "none",
+                  }}
+                >
+                  <span className="font-serif">{t("tao.tabs.records")}</span>
+                  {newRecordCount > 0 && (
+                    <span
+                      className="flex items-center justify-center rounded-full text-xs font-bold"
+                      style={{
+                        minWidth: 18, height: 18, padding: "0 4px",
+                        background: "hsl(45 80% 50%)",
+                        color: "hsl(240 22% 10%)",
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "0.65rem",
+                      }}
+                    >
+                      {newRecordCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Tab content */}
+              {activeTab === "events" ? (
+                state.events.length === 0 && state.stage === 0 ? (
+                  <div
+                    className="glass-strong rounded-2xl p-8 text-center"
+                    style={{
+                      border: "1px solid hsl(240 25% 22% / 0.4)",
+                      minHeight: 400,
+                      display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <p className="font-serif text-xl" style={{ color: "hsl(260 50% 55%)", fontWeight: 300 }}>
+                      {t("tao.welcome.title")}
+                    </p>
+                    <p className="font-serif italic text-sm" style={{ color: "hsl(220 15% 45%)", maxWidth: 300 }}>
+                      {t("tao.welcome.desc").split("\n").map((line, i) => (
+                        <span key={i}>{line}{i === 0 && <br />}</span>
+                      ))}
+                    </p>
+                    <p className="text-xs" style={{ color: "hsl(220 15% 32%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}>
+                      {t("tao.welcome.chapter")}
+                    </p>
+                  </div>
+                ) : (
+                  <EventLog
+                    events={state.events}
+                    onAskDaoMaster={(query) => setDaoQuery(query)}
+                  />
+                )
               ) : (
-                <EventLog
-                  events={state.events}
-                  onAskDaoMaster={(query) => setDaoQuery(query)}
-                />
+                <TaoRecords records={records} />
               )}
             </div>
           </div>
