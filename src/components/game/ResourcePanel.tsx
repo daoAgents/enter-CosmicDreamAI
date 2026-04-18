@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface ResourcePanelProps {
   yin: number;
   yang: number;
@@ -68,6 +70,8 @@ function ResourceBar({
 }
 
 export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className="glass rounded-2xl p-4 flex flex-col gap-3"
@@ -77,7 +81,7 @@ export function ResourcePanel({ yin, yang, zhongqi, stage }: ResourcePanelProps)
         className="text-xs text-center tracking-widest uppercase mb-1"
         style={{ color: "hsl(220 15% 48%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.2em" }}
       >
-        {stage === 0 ? "虚静待化" : "资源流转"}
+        {stage === 0 ? t("tao.resources.title_idle") : t("tao.resources.title_active")}
       </p>
 
       <ResourceBar

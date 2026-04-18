@@ -33,5 +33,70 @@
     "imageAlt": "梦境幻象",
     "save": "保存幻象",
     "label": "梦境传送门"
+  },
+  "tao": {
+    "title": "太初",
+    "subtitle": "道德经宇宙养成",
+    "error": "宇宙的奥秘暂时无法显现，请稍后再试。",
+    "nav": {
+      "dream": "梦境",
+      "reset": "重置",
+      "resetTitle": "重置游戏"
+    },
+    "welcome": {
+      "title": "无名，天地之始",
+      "desc": "在混沌之初，一切尚未开始。\n以无为之心，启动宇宙的第一次流转。",
+      "chapter": "帛书老子·第一章",
+      "taoQuote": "道生一，一生二，\n二生三，三生万物。",
+      "startHint": "点击「无为而化」开始"
+    },
+    "resources": {
+      "title_idle": "虚静待化",
+      "title_active": "资源流转"
+    },
+    "actions": {
+      "title": "道法自然",
+      "wuwei_label": "无为而化",
+      "wuwei_sub": "Wu Wei",
+      "wuwei_desc_0": "以无为开始，启动宇宙的流转",
+      "wuwei_desc": "顺势而为，加速阴阳流转 (+8 阴阳)",
+      "shouzh_label": "守中和合",
+      "shouzh_sub": "Shou Zhong",
+      "shouzh_desc_can": "消耗 阴20 + 阳20 → 中气+15",
+      "shouzh_desc_need": "需阴阳各≥20（当前 阴{{yin}} 阳{{yang}}）",
+      "huasheng_label": "化生演化",
+      "huasheng_sub": "Hua Sheng",
+      "huasheng_desc_can": "消耗 中气30 → 触发创世事件",
+      "huasheng_desc_loading": "正在演化中……",
+      "huasheng_desc_need": "需中气≥30（当前 {{zhongqi}}）",
+      "advance": "✦ 突破至下一境界 ✦"
+    },
+    "stage": {
+      "zhongqi_label": "中气 {{current}}/{{max}}",
+      "events_label": "化生 {{current}}/{{max}}",
+      "max_caption": "万物化育，道德永恒"
+    },
+    "eventlog": {
+      "title": "天道录",
+      "empty_desc": "化生演化后，宇宙事件将在此记录",
+      "image_loading": "幻象生成中",
+      "text_loading": "道在演化，请稍候……",
+      "ask_button": "问道",
+      "ask_query": "帛书老子中，关于「{{stageName}}」和「{{actionLabel}}」的智慧是什么？请结合第四十二章解读。",
+      "action_wuwei": "无为而化",
+      "action_shouzh": "守中和合",
+      "action_huasheng": "化生演化"
+    },
+    "daomaster": {
+      "button_label": "问道师",
+      "button_tag": "道衍",
+      "panel_title": "道衍",
+      "panel_subtitle": "帛书老子智慧修行平台",
+      "query_banner_label": "✦ 已为你准备好问题",
+      "copy_button": "一键复制",
+      "copied": "已复制",
+      "copy_hint": "请粘贴至下方对话框 ↓"
+    }
   }
 }
+

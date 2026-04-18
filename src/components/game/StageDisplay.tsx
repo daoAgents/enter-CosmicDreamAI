@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { GameStage, STAGE_NAMES, STAGE_THRESHOLDS } from "@/hooks/useGameState";
 
 interface StageDisplayProps {
@@ -16,17 +17,19 @@ const STAGE_COLORS: Record<GameStage, string> = {
 };
 
 export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps) {
+  const { t, i18n } = useTranslation();
   const info = STAGE_NAMES[stage];
   const color = STAGE_COLORS[stage];
   const threshold = STAGE_THRESHOLDS[stage];
   const isMaxStage = stage === 4;
+  const isZh = i18n.language === "zh";
 
   const zhongqiProgress = threshold ? Math.min((zhongqi / threshold.zhongqi) * 100, 100) : 100;
   const eventsProgress = threshold ? Math.min((stageEvents / Math.max(threshold.events, 1)) * 100, 100) : 100;
 
   return (
     <div className="text-center">
-      {/* Stage number */}
+      {/* Stage progress dots */}
       <div className="flex items-center justify-center gap-3 mb-2">
         {[0, 1, 2, 3, 4].map((s) => (
           <div
@@ -55,19 +58,19 @@ export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps)
           letterSpacing: "0.05em",
         }}
       >
-        {info.zh}
+        {isZh ? info.zh : info.en}
       </h2>
       <p
         className="font-serif italic text-sm"
         style={{ color: "hsl(220 15% 55%)", letterSpacing: "0.05em" }}
       >
-        {info.en}
+        {isZh ? info.en : info.zh}
       </p>
       <p
         className="text-xs mt-1"
         style={{ color: "hsl(220 15% 40%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.1em" }}
       >
-        {info.desc}
+        {isZh ? info.desc : info.descEn}
       </p>
 
       {/* Progress to next stage */}
@@ -75,7 +78,7 @@ export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps)
         <div className="mt-3 flex gap-3 justify-center">
           <div className="flex flex-col items-center gap-1">
             <span className="text-xs" style={{ color: "hsl(160 60% 45%)", fontFamily: "Inter, sans-serif" }}>
-              中气 {Math.floor(zhongqi)}/{threshold.zhongqi}
+              {t("tao.stage.zhongqi_label", { current: Math.floor(zhongqi), max: threshold.zhongqi })}
             </span>
             <div
               style={{
@@ -98,7 +101,7 @@ export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps)
           {threshold.events > 0 && (
             <div className="flex flex-col items-center gap-1">
               <span className="text-xs" style={{ color: "hsl(260 60% 55%)", fontFamily: "Inter, sans-serif" }}>
-                化生 {stageEvents}/{threshold.events}
+                {t("tao.stage.events_label", { current: stageEvents, max: threshold.events })}
               </span>
               <div
                 style={{
@@ -124,7 +127,7 @@ export function StageDisplay({ stage, zhongqi, stageEvents }: StageDisplayProps)
 
       {isMaxStage && (
         <p className="mt-2 text-xs font-serif italic" style={{ color }}>
-          万物化育，道德永恒
+          {t("tao.stage.max_caption")}
         </p>
       )}
     </div>

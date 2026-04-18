@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, MessageCircle, Copy, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const DAO_YAN_URL = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro/";
 const DAO_YAN_ORIGIN = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro";
@@ -16,6 +17,7 @@ function QueryBanner({
   query: string;
   onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(true);
 
@@ -23,7 +25,6 @@ function QueryBanner({
     try {
       await navigator.clipboard.writeText(query);
     } catch {
-      // Fallback for browsers that block clipboard
       const el = document.createElement("textarea");
       el.value = query;
       el.style.position = "fixed";
@@ -34,7 +35,6 @@ function QueryBanner({
       document.body.removeChild(el);
     }
     setCopied(true);
-    // Auto-dismiss banner after 3s
     setTimeout(() => {
       setVisible(false);
       setTimeout(onDismiss, 400);
@@ -54,7 +54,6 @@ function QueryBanner({
         opacity: visible ? 1 : 0,
       }}
     >
-      {/* Label */}
       <div className="flex items-center justify-between mb-2">
         <span
           className="text-xs tracking-wide"
@@ -64,7 +63,7 @@ function QueryBanner({
             letterSpacing: "0.08em",
           }}
         >
-          ✦ 已为你准备好问题
+          {t("tao.daomaster.query_banner_label")}
         </span>
         <button
           onClick={() => { setVisible(false); setTimeout(onDismiss, 400); }}
@@ -74,7 +73,6 @@ function QueryBanner({
         </button>
       </div>
 
-      {/* Question text */}
       <p
         className="font-serif leading-relaxed mb-3"
         style={{
@@ -87,29 +85,26 @@ function QueryBanner({
         {query}
       </p>
 
-      {/* Copy button + hint */}
       <div className="flex items-center gap-2">
         <button
           onClick={handleCopy}
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all duration-200"
           style={{
-            background: copied
-              ? "hsl(160 60% 25% / 0.5)"
-              : "hsl(260 60% 35% / 0.4)",
+            background: copied ? "hsl(160 60% 25% / 0.5)" : "hsl(260 60% 35% / 0.4)",
             border: `1px solid ${copied ? "hsl(160 60% 40% / 0.5)" : "hsl(260 60% 55% / 0.4)"}`,
             color: copied ? "hsl(160 65% 65%)" : "hsl(260 70% 75%)",
             fontFamily: "Inter, sans-serif",
           }}
         >
           {copied ? <Check size={11} /> : <Copy size={11} />}
-          {copied ? "已复制" : "一键复制"}
+          {copied ? t("tao.daomaster.copied") : t("tao.daomaster.copy_button")}
         </button>
         {copied && (
           <span
             className="text-xs animate-fade-in"
             style={{ color: "hsl(160 55% 52%)", fontFamily: "Inter, sans-serif" }}
           >
-            请粘贴至下方对话框 ↓
+            {t("tao.daomaster.copy_hint")}
           </span>
         )}
       </div>
@@ -118,32 +113,27 @@ function QueryBanner({
 }
 
 export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [activeQuery, setActiveQuery] = useState<string | undefined>(undefined);
   const [iframeReady, setIframeReady] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const prevQueryRef = useRef<string | undefined>(undefined);
 
-  // Attempt postMessage injection when both iframe is ready and a query exists
   const tryPostMessage = useCallback((query: string) => {
     if (!iframeRef.current?.contentWindow) return;
     try {
-      // Try common chat input injection patterns
       iframeRef.current.contentWindow.postMessage(
         { type: "ENTER_CHAT_INPUT", message: query },
         DAO_YAN_ORIGIN
       );
-      // Also try a broader format in case the app uses a different event shape
       iframeRef.current.contentWindow.postMessage(
         { type: "SET_INPUT", value: query },
         DAO_YAN_ORIGIN
       );
-    } catch {
-      // Cross-origin postMessage can throw in some sandboxed environments — ignore
-    }
+    } catch { /* ignore cross-origin errors */ }
   }, []);
 
-  // When a new context query arrives, open the panel and show the banner
   useEffect(() => {
     if (contextQuery && contextQuery !== prevQueryRef.current) {
       prevQueryRef.current = contextQuery;
@@ -152,18 +142,14 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
     }
   }, [contextQuery]);
 
-  // Once iframe is ready and we have a query, try postMessage
   useEffect(() => {
     if (iframeReady && activeQuery) {
-      // Small delay to let the iframe's React app fully hydrate
       const t = setTimeout(() => tryPostMessage(activeQuery), 800);
       return () => clearTimeout(t);
     }
   }, [iframeReady, activeQuery, tryPostMessage]);
 
-  function handleOpen() {
-    setIsOpen(true);
-  }
+  function handleOpen() { setIsOpen(true); }
 
   function handleClose() {
     setIsOpen(false);
@@ -171,9 +157,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
     onClearQuery?.();
   }
 
-  function handleIframeLoad() {
-    setIframeReady(true);
-  }
+  function handleIframeLoad() { setIframeReady(true); }
 
   function handleDismissBanner() {
     setActiveQuery(undefined);
@@ -192,11 +176,11 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
           boxShadow: "0 4px 24px hsl(260 80% 60% / 0.15)",
           backdropFilter: "blur(12px)",
         }}
-        title="向道衍问道"
+        title={t("tao.daomaster.button_label")}
       >
         <MessageCircle size={16} style={{ color: "hsl(260 80% 70%)" }} />
         <span className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>
-          问道师
+          {t("tao.daomaster.button_label")}
         </span>
         <span
           className="text-xs px-1.5 py-0.5 rounded-md"
@@ -207,7 +191,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
             fontSize: "0.65rem",
           }}
         >
-          道衍
+          {t("tao.daomaster.button_tag")}
         </span>
       </button>
 
@@ -254,9 +238,11 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
               ☯
             </div>
             <div>
-              <p className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>道衍</p>
+              <p className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>
+                {t("tao.daomaster.panel_title")}
+              </p>
               <p className="text-xs" style={{ color: "hsl(220 15% 42%)", fontFamily: "Inter, sans-serif" }}>
-                帛书老子智慧修行平台
+                {t("tao.daomaster.panel_subtitle")}
               </p>
             </div>
           </div>
@@ -272,7 +258,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
           </button>
         </div>
 
-        {/* Query banner — shown when there's a context query */}
+        {/* Query banner */}
         {activeQuery && isOpen && (
           <QueryBanner query={activeQuery} onDismiss={handleDismissBanner} />
         )}
@@ -283,7 +269,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
             ref={iframeRef}
             src={DAO_YAN_URL}
             className="w-full h-full border-0"
-            title="道衍 — 帛书老子智慧平台"
+            title={t("tao.daomaster.panel_title")}
             allow="clipboard-write"
             onLoad={handleIframeLoad}
           />

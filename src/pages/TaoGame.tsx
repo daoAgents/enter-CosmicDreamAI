@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { RotateCcw, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NebulaBackground } from "@/components/NebulaBackground";
 import { StarfieldCanvas } from "@/components/StarfieldCanvas";
 import { CosmosView } from "@/components/game/CosmosView";
@@ -9,10 +10,12 @@ import { ActionPanel } from "@/components/game/ActionPanel";
 import { StageDisplay } from "@/components/game/StageDisplay";
 import { EventLog } from "@/components/game/EventLog";
 import { DaoMasterPanel } from "@/components/game/DaoMasterPanel";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useGameState } from "@/hooks/useGameState";
 import { useCosmicEvent } from "@/hooks/useCosmicEvent";
 
 export default function TaoGame() {
+  const { t } = useTranslation();
   const {
     state,
     doWuwei,
@@ -43,10 +46,10 @@ export default function TaoGame() {
     ),
     onError: useCallback(
       (id: string, _error: string) => {
-        updateEventText(id, "宇宙的奥秘暂时无法显现，请稍后再试。");
+        updateEventText(id, t("tao.error"));
         setIsEventLoading(false);
       },
-      [updateEventText]
+      [updateEventText, t]
     ),
   });
 
@@ -92,9 +95,11 @@ export default function TaoGame() {
             ☯
           </div>
           <div>
-            <span className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>太初</span>
+            <span className="font-serif text-sm" style={{ color: "hsl(260 70% 72%)" }}>
+              {t("tao.title")}
+            </span>
             <span className="text-xs ml-2" style={{ color: "hsl(220 15% 40%)", fontFamily: "Inter, sans-serif" }}>
-              道德经宇宙养成
+              {t("tao.subtitle")}
             </span>
           </div>
         </div>
@@ -115,8 +120,9 @@ export default function TaoGame() {
             }}
           >
             <Star size={12} />
-            梦境
+            {t("tao.nav.dream")}
           </Link>
+          <LanguageSwitcher />
           <button
             onClick={reset}
             className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs transition-all hover:opacity-80"
@@ -126,10 +132,10 @@ export default function TaoGame() {
               color: "hsl(0 50% 55%)",
               fontFamily: "Inter, sans-serif",
             }}
-            title="重置游戏"
+            title={t("tao.nav.resetTitle")}
           >
             <RotateCcw size={12} />
-            重置
+            {t("tao.nav.reset")}
           </button>
         </div>
       </div>
@@ -195,9 +201,12 @@ export default function TaoGame() {
                   className="font-serif italic text-center text-xs"
                   style={{ color: "hsl(260 50% 50%)", lineHeight: 1.6 }}
                 >
-                  道生一，一生二，<br />二生三，三生万物。<br />
+                  {t("tao.welcome.taoQuote").split("\n").map((line, i) => (
+                    <span key={i}>{line}{i === 0 && <br />}</span>
+                  ))}
+                  <br />
                   <span style={{ color: "hsl(220 15% 38%)", fontStyle: "normal", fontSize: "0.68rem" }}>
-                    点击「无为而化」开始
+                    {t("tao.welcome.startHint")}
                   </span>
                 </p>
               )}
@@ -217,13 +226,15 @@ export default function TaoGame() {
                   }}
                 >
                   <p className="font-serif text-xl" style={{ color: "hsl(260 50% 55%)", fontWeight: 300 }}>
-                    无名，天地之始
+                    {t("tao.welcome.title")}
                   </p>
                   <p className="font-serif italic text-sm" style={{ color: "hsl(220 15% 45%)", maxWidth: 300 }}>
-                    在混沌之初，一切尚未开始。<br />以无为之心，启动宇宙的第一次流转。
+                    {t("tao.welcome.desc").split("\n").map((line, i) => (
+                      <span key={i}>{line}{i === 0 && <br />}</span>
+                    ))}
                   </p>
                   <p className="text-xs" style={{ color: "hsl(220 15% 32%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.05em" }}>
-                    帛书老子·第一章
+                    {t("tao.welcome.chapter")}
                   </p>
                 </div>
               ) : (

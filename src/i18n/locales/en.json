@@ -33,5 +33,70 @@
     "imageAlt": "Dream visualization",
     "save": "Save Vision",
     "label": "Dream Portal"
+  },
+  "tao": {
+    "title": "Tai Chu",
+    "subtitle": "Tao Te Ching Cosmic Cultivation",
+    "error": "The cosmic mystery cannot be revealed for now, please try again later.",
+    "nav": {
+      "dream": "Dreams",
+      "reset": "Reset",
+      "resetTitle": "Reset Game"
+    },
+    "welcome": {
+      "title": "The Nameless, Origin of Heaven and Earth",
+      "desc": "At the dawn of chaos, all is yet to begin.\nWith the heart of Wu Wei, initiate the first flow of the cosmos.",
+      "chapter": "Boshu Laozi · Chapter 1",
+      "taoQuote": "The Tao gives birth to One. One gives birth to Two.\nTwo gives birth to Three. Three gives birth to all things.",
+      "startHint": "Click 「Wu Wei Hua」 to begin"
+    },
+    "resources": {
+      "title_idle": "Void Awaiting",
+      "title_active": "Resource Flow"
+    },
+    "actions": {
+      "title": "Tao's Natural Law",
+      "wuwei_label": "无为而化",
+      "wuwei_sub": "Wu Wei",
+      "wuwei_desc_0": "Begin with non-action, initiate the flow of the cosmos",
+      "wuwei_desc": "Flow with nature, accelerate yin-yang circulation (+8 Yin-Yang)",
+      "shouzh_label": "守中和合",
+      "shouzh_sub": "Shou Zhong",
+      "shouzh_desc_can": "Spend Yin 20 + Yang 20 → Zhong Qi +15",
+      "shouzh_desc_need": "Requires Yin ≥ 20 & Yang ≥ 20 (current: Yin {{yin}} Yang {{yang}})",
+      "huasheng_label": "化生演化",
+      "huasheng_sub": "Hua Sheng",
+      "huasheng_desc_can": "Spend Zhong Qi 30 → Trigger a cosmic event",
+      "huasheng_desc_loading": "Evolving...",
+      "huasheng_desc_need": "Requires Zhong Qi ≥ 30 (current: {{zhongqi}})",
+      "advance": "✦ Break Through to the Next Realm ✦"
+    },
+    "stage": {
+      "zhongqi_label": "Zhong Qi {{current}}/{{max}}",
+      "events_label": "Events {{current}}/{{max}}",
+      "max_caption": "Ten thousand things bloom, the Tao endures forever"
+    },
+    "eventlog": {
+      "title": "Chronicle of Heaven",
+      "empty_desc": "After Hua Sheng, cosmic events will be recorded here",
+      "image_loading": "Vision forming",
+      "text_loading": "Tao is evolving, please wait...",
+      "ask_button": "Ask",
+      "ask_query": "In the Boshu Laozi, what is the wisdom about 「{{stageName}}」and 「{{actionLabel}}」? Please interpret with reference to Chapter 42.",
+      "action_wuwei": "Wu Wei Hua",
+      "action_shouzh": "Shou Zhong He He",
+      "action_huasheng": "Hua Sheng Yan Hua"
+    },
+    "daomaster": {
+      "button_label": "Ask Master",
+      "button_tag": "Dao Yan",
+      "panel_title": "Dao Yan",
+      "panel_subtitle": "Boshu Laozi Wisdom Platform",
+      "query_banner_label": "✦ Question prepared for you",
+      "copy_button": "Copy",
+      "copied": "Copied",
+      "copy_hint": "Please paste into the chat below ↓"
+    }
   }
 }
+

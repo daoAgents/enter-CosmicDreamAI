@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sparkles, Waves, Zap, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { GameStage } from "@/hooks/useGameState";
 
 interface ActionPanelProps {
@@ -102,7 +103,6 @@ export function ActionPanel({
   yin,
   yang,
   zhongqi,
-  started,
   canAdvanceStage,
   isEventLoading,
   onWuwei,
@@ -110,6 +110,7 @@ export function ActionPanel({
   onHuasheng,
   onAdvanceStage,
 }: ActionPanelProps) {
+  const { t } = useTranslation();
   const [wuweiCooldown, setWuweiCooldown] = useState(false);
   const canShouzh = yin >= 20 && yang >= 20;
   const canHuasheng = zhongqi >= 30 && !isEventLoading;
@@ -130,13 +131,13 @@ export function ActionPanel({
         className="text-xs text-center tracking-widest uppercase mb-1"
         style={{ color: "hsl(220 15% 48%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.2em" }}
       >
-        道法自然
+        {t("tao.actions.title")}
       </p>
 
       <ActionButton
-        label="无为而化"
-        subLabel="Wu Wei"
-        desc={stage === 0 ? "以无为开始，启动宇宙的流转" : "顺势而为，加速阴阳流转 (+8 阴阳)"}
+        label={t("tao.actions.wuwei_label")}
+        subLabel={t("tao.actions.wuwei_sub")}
+        desc={stage === 0 ? t("tao.actions.wuwei_desc_0") : t("tao.actions.wuwei_desc")}
         icon={Sparkles}
         onClick={handleWuwei}
         disabled={wuweiCooldown}
@@ -146,9 +147,13 @@ export function ActionPanel({
       />
 
       <ActionButton
-        label="守中和合"
-        subLabel="Shou Zhong"
-        desc={canShouzh ? "消耗 阴20 + 阳20 → 中气+15" : `需阴阳各≥20（当前 阴${Math.floor(yin)} 阳${Math.floor(yang)}）`}
+        label={t("tao.actions.shouzh_label")}
+        subLabel={t("tao.actions.shouzh_sub")}
+        desc={
+          canShouzh
+            ? t("tao.actions.shouzh_desc_can")
+            : t("tao.actions.shouzh_desc_need", { yin: Math.floor(yin), yang: Math.floor(yang) })
+        }
         icon={Waves}
         onClick={onShouzh}
         disabled={!canShouzh || stage === 0}
@@ -157,9 +162,15 @@ export function ActionPanel({
       />
 
       <ActionButton
-        label="化生演化"
-        subLabel="Hua Sheng"
-        desc={canHuasheng ? "消耗 中气30 → 触发创世事件" : isEventLoading ? "正在演化中……" : `需中气≥30（当前 ${Math.floor(zhongqi)}）`}
+        label={t("tao.actions.huasheng_label")}
+        subLabel={t("tao.actions.huasheng_sub")}
+        desc={
+          canHuasheng
+            ? t("tao.actions.huasheng_desc_can")
+            : isEventLoading
+            ? t("tao.actions.huasheng_desc_loading")
+            : t("tao.actions.huasheng_desc_need", { zhongqi: Math.floor(zhongqi) })
+        }
         icon={Zap}
         onClick={onHuasheng}
         disabled={!canHuasheng || stage === 0}
@@ -181,7 +192,7 @@ export function ActionPanel({
             animation: "pulse-glow 2s ease-in-out infinite",
           }}
         >
-          ✦ 突破至下一境界 ✦
+          {t("tao.actions.advance")}
         </button>
       )}
     </div>

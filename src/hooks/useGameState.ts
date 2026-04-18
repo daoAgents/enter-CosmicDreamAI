@@ -52,12 +52,12 @@ export const STAGE_THRESHOLDS: Record<number, { zhongqi: number; events: number 
   3: { zhongqi: 80, events: 6 },  // stage 3→4
 };
 
-export const STAGE_NAMES: Record<GameStage, { zh: string; en: string; desc: string }> = {
-  0: { zh: "混沌·道", en: "Primordial Chaos · Tao", desc: "虚静无极，道在其中" },
-  1: { zh: "太极·一", en: "Great Ultimate · The One", desc: "一气初动，太极生" },
-  2: { zh: "两仪·阴阳", en: "Two Powers · Yin-Yang", desc: "阴阳分判，两仪立" },
-  3: { zh: "三才·中气", en: "Three Powers · Zhong Qi", desc: "中气居间，三才生" },
-  4: { zh: "万物·化生", en: "Ten Thousand Things", desc: "道生万物，化育不息" },
+export const STAGE_NAMES: Record<GameStage, { zh: string; en: string; desc: string; descEn: string }> = {
+  0: { zh: "混沌·道", en: "Primordial Chaos · Tao", desc: "虚静无极，道在其中", descEn: "Void and stillness, the Tao within" },
+  1: { zh: "太极·一", en: "Great Ultimate · The One", desc: "一气初动，太极生", descEn: "First qi stirs, the Great Ultimate born" },
+  2: { zh: "两仪·阴阳", en: "Two Powers · Yin-Yang", desc: "阴阳分判，两仪立", descEn: "Yin and Yang divide, Two Powers arise" },
+  3: { zh: "三才·中气", en: "Three Powers · Zhong Qi", desc: "中气居间，三才生", descEn: "Zhong Qi harmonizes, Three Powers emerge" },
+  4: { zh: "万物·化生", en: "Ten Thousand Things", desc: "道生万物，化育不息", descEn: "Tao births all things, creation unceasing" },
 };
 
 const STORAGE_KEY = "tao-game-state-v1";

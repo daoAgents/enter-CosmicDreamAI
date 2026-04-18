@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ExternalLink, Image } from "lucide-react";
 import { CosmicEvent, STAGE_NAMES, GameStage } from "@/hooks/useGameState";
 
@@ -14,18 +15,21 @@ const STAGE_COLORS: Record<GameStage, string> = {
   4: "hsl(320 65% 65%)",
 };
 
-const ACTION_LABELS: Record<string, string> = {
-  wuwei: "无为而化",
-  shouzh: "守中和合",
-  huasheng: "化生演化",
-};
-
 function formatTime(ts: number) {
   const d = new Date(ts);
-  return d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
 export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language === "zh";
+
+  const ACTION_LABELS: Record<string, string> = {
+    wuwei: t("tao.eventlog.action_wuwei"),
+    shouzh: t("tao.eventlog.action_shouzh"),
+    huasheng: t("tao.eventlog.action_huasheng"),
+  };
+
   if (events.length === 0) {
     return (
       <div
@@ -44,10 +48,10 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
           <Image size={20} style={{ color: "hsl(260 60% 55%)" }} />
         </div>
         <p className="font-serif italic" style={{ color: "hsl(220 20% 55%)", fontSize: "1rem" }}>
-          天道录
+          {t("tao.eventlog.title")}
         </p>
         <p className="text-xs mt-2" style={{ color: "hsl(220 15% 38%)", fontFamily: "Inter, sans-serif" }}>
-          化生演化后，宇宙事件将在此记录
+          {t("tao.eventlog.empty_desc")}
         </p>
       </div>
     );
@@ -61,15 +65,17 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
           className="text-xs tracking-widest uppercase"
           style={{ color: "hsl(260 40% 50%)", fontFamily: "Inter, sans-serif", letterSpacing: "0.2em" }}
         >
-          天道录
+          {t("tao.eventlog.title")}
         </span>
         <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, hsl(260 40% 35% / 0.4), transparent)" }} />
       </div>
 
       {events.map((event, i) => {
         const stageColor = STAGE_COLORS[event.stage];
-        const stageName = STAGE_NAMES[event.stage].zh;
-        const query = `帛书老子中，关于「${stageName}」和「${ACTION_LABELS[event.actionType] || "化生"}」的智慧是什么？请结合第四十二章解读。`;
+        const stageInfo = STAGE_NAMES[event.stage];
+        const stageName = isZh ? stageInfo.zh : stageInfo.en;
+        const actionLabel = ACTION_LABELS[event.actionType] ?? ACTION_LABELS.huasheng;
+        const query = t("tao.eventlog.ask_query", { stageName, actionLabel });
 
         return (
           <div
@@ -101,7 +107,7 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                   {stageName}
                 </span>
                 <span className="text-xs" style={{ color: "hsl(220 15% 38%)", fontFamily: "Inter, sans-serif" }}>
-                  · {ACTION_LABELS[event.actionType] || "化生"}
+                  · {actionLabel}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -118,10 +124,10 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                       color: stageColor,
                       fontFamily: "Inter, sans-serif",
                     }}
-                    title="向道师问道"
+                    title={t("tao.daomaster.button_label")}
                   >
                     <ExternalLink size={10} />
-                    问道
+                    {t("tao.eventlog.ask_button")}
                   </button>
                 )}
               </div>
@@ -162,7 +168,7 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                       }}
                     />
                     <span style={{ fontSize: "0.6rem", color: stageColor, opacity: 0.6, fontFamily: "Inter, sans-serif" }}>
-                      幻象生成中
+                      {t("tao.eventlog.image_loading")}
                     </span>
                   </div>
                 </div>
@@ -194,7 +200,7 @@ export function EventLog({ events, onAskDaoMaster }: EventLogProps) {
                     className="font-serif italic text-xs"
                     style={{ color: "hsl(220 15% 40%)" }}
                   >
-                    道在演化，请稍候……
+                    {t("tao.eventlog.text_loading")}
                   </p>
                 )}
               </div>
