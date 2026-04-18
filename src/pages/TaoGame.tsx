@@ -20,6 +20,7 @@ export default function TaoGame() {
     state,
     doWuwei,
     doShouzh,
+    doCosmosTouch,
     startEvent,
     updateEventText,
     completeEvent,
@@ -172,6 +173,8 @@ export default function TaoGame() {
                   yin={state.yin}
                   yang={state.yang}
                   zhongqi={state.zhongqi}
+                  onTouch={doCosmosTouch}
+                  onTriggerWuwei={doWuwei}
                 />
               </div>
 

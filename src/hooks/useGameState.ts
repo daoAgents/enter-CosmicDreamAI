@@ -70,6 +70,7 @@ type Action =
   | { type: "TICK"; delta: number }
   | { type: "WUWEI" }
   | { type: "SHOUZH" }
+  | { type: "COSMOS_TOUCH"; resource: "yin" | "yang" | "zhongqi"; amount: number }
   | { type: "START_EVENT"; id: string; actionType: ActionType }
   | { type: "UPDATE_EVENT_TEXT"; id: string; text: string }
   | { type: "COMPLETE_EVENT"; id: string; imageUrl?: string }
@@ -99,6 +100,14 @@ function gameReducer(state: GameState, action: Action): GameState {
         lastWuweiTime: now,
         // After first wuwei in stage 0, advance to stage 1
         stage: state.stage === 0 ? 1 : state.stage,
+      };
+    }
+    case "COSMOS_TOUCH": {
+      return {
+        ...state,
+        yin: action.resource === "yin" ? clamp(state.yin + action.amount) : state.yin,
+        yang: action.resource === "yang" ? clamp(state.yang + action.amount) : state.yang,
+        zhongqi: action.resource === "zhongqi" ? clamp(state.zhongqi + action.amount) : state.zhongqi,
       };
     }
     case "SHOUZH": {
@@ -223,6 +232,10 @@ export function useGameState() {
     return () => clearInterval(interval);
   }, []);
 
+  const doCosmosTouch = useCallback((resource: "yin" | "yang" | "zhongqi", amount: number) => {
+    dispatch({ type: "COSMOS_TOUCH", resource, amount });
+  }, []);
+
   const doWuwei = useCallback(() => dispatch({ type: "WUWEI" }), []);
   const doShouzh = useCallback(() => dispatch({ type: "SHOUZH" }), []);
 
@@ -262,6 +275,7 @@ export function useGameState() {
     state,
     doWuwei,
     doShouzh,
+    doCosmosTouch,
     startEvent,
     updateEventText,
     completeEvent,
