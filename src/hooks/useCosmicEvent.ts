@@ -54,7 +54,7 @@ async function generateCosmicImage(stage: GameStage, actionType: ActionType): Pr
 
 export function useCosmicEvent({ onText, onComplete, onError }: CosmicEventCallbacks) {
   const triggerEvent = useCallback(
-    async (id: string, stage: GameStage, actionType: ActionType, eventIndex: number) => {
+    async (id: string, stage: GameStage, actionType: ActionType, eventIndex: number, language?: string) => {
       const blocks = new Map<number, { type: string; content: string }>();
 
       // Start both text streaming and image generation simultaneously
@@ -65,7 +65,7 @@ export function useCosmicEvent({ onText, onComplete, onError }: CosmicEventCallb
             "Content-Type": "application/json",
             Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ stage, actionType, eventIndex }),
+          body: JSON.stringify({ stage, actionType, eventIndex, language: language ?? "zh" }),
 
           async onopen(response) {
             if (!response.ok) {

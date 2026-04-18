@@ -15,7 +15,7 @@ import { useGameState } from "@/hooks/useGameState";
 import { useCosmicEvent } from "@/hooks/useCosmicEvent";
 
 export default function TaoGame() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     state,
     doWuwei,
@@ -64,8 +64,8 @@ export default function TaoGame() {
       eventLogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
 
-    await triggerEvent(id, state.stage, "huasheng", eventIndex);
-  }, [isEventLoading, state.zhongqi, state.stage, state.events, startEvent, triggerEvent]);
+    await triggerEvent(id, state.stage, "huasheng", eventIndex, i18n.language);
+  }, [isEventLoading, state.zhongqi, state.stage, state.events, startEvent, triggerEvent, i18n.language]);
 
   const stageEvents = state.events.filter((e) => e.stage === state.stage).length;
 

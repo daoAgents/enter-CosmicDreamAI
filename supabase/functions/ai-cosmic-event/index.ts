@@ -31,7 +31,8 @@ Deno.serve(async (req) => {
       return new Response(errorSSE, { status: 500, headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
     }
 
-    const { stage, actionType, eventIndex } = await req.json();
+    const { stage, actionType, eventIndex, language } = await req.json();
+    const isZh = language === "zh";
     const stageName = STAGE_NAMES[stage] ?? STAGE_NAMES[0];
     const stageContext = STAGE_CONTEXTS[stage] ?? STAGE_CONTEXTS[0];
 
@@ -43,7 +44,18 @@ Deno.serve(async (req) => {
 
     const actionDesc = actionDescriptions[actionType] ?? actionDescriptions["huasheng"];
 
-    const systemPrompt = `You are the voice of the Cosmos, narrating the unfolding of creation as described in the Boshu Laozi (帛书老子, Ma Wang Dui manuscripts). You speak in poetic, mystical prose — a blend of ancient Chinese cosmological wisdom and luminous imagery. 
+    const systemPrompt = isZh
+      ? `你是宇宙的声音，以帛书老子（马王堆出土手稿）所描述的道的视角，叙述创世的展开。你以诗意、神秘的散文体写作——古典中国宇宙观智慧与光明意象的融合。
+
+你的叙述：
+- 150至200字（中文字数）
+- 仿佛从道的内部目睹宇宙事件，以第一人称或旁观者视角皆可
+- 意象丰富：光、暗、呼吸、流水、山岳、星辰、种子
+- 扎根于当前阶段的具体哲学内涵
+- 以一句帛书老子（帛书老子）的相关引文或道理收尾
+
+不要使用章节标题。以连贯流动的散文写作。语调神圣、缓慢、光明。请用中文写作。`
+      : `You are the voice of the Cosmos, narrating the unfolding of creation as described in the Boshu Laozi (帛书老子, Ma Wang Dui manuscripts). You speak in poetic, mystical prose — a blend of ancient Chinese cosmological wisdom and luminous imagery. 
 
 Your narrations are:
 - 150-200 words long
@@ -54,7 +66,17 @@ Your narrations are:
 
 Do NOT use section headers. Write as continuous, flowing prose. The tone is sacred, slow, and luminous.`;
 
-    const userPrompt = `The cosmic game has reached stage: ${stageName}
+    const userPrompt = isZh
+      ? `宇宙游戏已到达阶段：${stageName}
+
+阶段背景：${stageContext}
+
+玩家刚刚执行了：${actionDescriptions[actionType] ?? actionDescriptions["huasheng"]}
+
+这是本阶段第 ${eventIndex + 1} 次化生事件。
+
+请以道目睹自身创造的诗意幻象，叙述这一宇宙展开的时刻。请用中文写作。`
+      : `The cosmic game has reached stage: ${stageName}
 
 Stage context: ${stageContext}
 
