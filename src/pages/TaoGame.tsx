@@ -10,9 +10,11 @@ import { ActionPanel } from "@/components/game/ActionPanel";
 import { StageDisplay } from "@/components/game/StageDisplay";
 import { EventLog } from "@/components/game/EventLog";
 import { DaoMasterPanel } from "@/components/game/DaoMasterPanel";
+import { StageTransition } from "@/components/game/StageTransition";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useGameState } from "@/hooks/useGameState";
 import { useCosmicEvent } from "@/hooks/useCosmicEvent";
+import type { GameStage } from "@/hooks/useGameState";
 
 export default function TaoGame() {
   const { t, i18n } = useTranslation();
@@ -31,6 +33,7 @@ export default function TaoGame() {
 
   const [isEventLoading, setIsEventLoading] = useState(false);
   const [daoQuery, setDaoQuery] = useState<string | undefined>(undefined);
+  const [transitionStage, setTransitionStage] = useState<GameStage | null>(null);
   const eventLogRef = useRef<HTMLDivElement>(null);
 
   const { triggerEvent } = useCosmicEvent({
@@ -67,6 +70,17 @@ export default function TaoGame() {
 
     await triggerEvent(id, state.stage, "huasheng", eventIndex, i18n.language);
   }, [isEventLoading, state.zhongqi, state.stage, state.events, startEvent, triggerEvent, i18n.language]);
+
+  // Intercept advance: show ceremony first, then commit stage change
+  const handleAdvanceStage = useCallback(() => {
+    if (!canAdvanceStage) return;
+    setTransitionStage((state.stage + 1) as GameStage);
+  }, [canAdvanceStage, state.stage]);
+
+  const handleTransitionComplete = useCallback(() => {
+    setTransitionStage(null);
+    tryAdvanceStage();
+  }, [tryAdvanceStage]);
 
   const stageEvents = state.events.filter((e) => e.stage === state.stage).length;
 
@@ -196,7 +210,7 @@ export default function TaoGame() {
                 onWuwei={doWuwei}
                 onShouzh={doShouzh}
                 onHuasheng={handleHuasheng}
-                onAdvanceStage={tryAdvanceStage}
+                onAdvanceStage={handleAdvanceStage}
               />
 
               {state.stage === 0 && !state.started && (
@@ -250,6 +264,14 @@ export default function TaoGame() {
           </div>
         </div>
       </div>
+
+      {/* Stage advancement ceremony overlay */}
+      {transitionStage !== null && (
+        <StageTransition
+          newStage={transitionStage}
+          onComplete={handleTransitionComplete}
+        />
+      )}
     </div>
   );
 }
