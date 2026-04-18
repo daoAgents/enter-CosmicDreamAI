@@ -81,16 +81,42 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let lineBuffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, content: m.content + chunk } : m
-            )
-          );
+
+          lineBuffer += decoder.decode(value, { stream: true });
+
+          // Split by newline; keep last incomplete line in buffer
+          const lines = lineBuffer.split("\n");
+          lineBuffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const jsonStr = trimmed.slice(5).trim();
+            if (!jsonStr || jsonStr === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              if (
+                parsed.type === "content_block_delta" &&
+                parsed.delta?.type === "text_delta" &&
+                typeof parsed.delta.text === "string"
+              ) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, content: m.content + parsed.delta.text }
+                      : m
+                  )
+                );
+              }
+            } catch {
+              // non-JSON lines ignored
+            }
+          }
         }
       } catch {
         setMessages((prev) =>
