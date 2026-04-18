@@ -92,10 +92,10 @@
       "button_tag": "Dao Yan",
       "panel_title": "Dao Yan",
       "panel_subtitle": "Boshu Laozi Wisdom Platform",
-      "query_banner_label": "✦ Question prepared for you",
-      "copy_button": "Copy",
-      "copied": "Copied",
-      "copy_hint": "Please paste into the chat below ↓"
+      "input_placeholder": "Ask Daoyan a question...",
+      "send_button": "Ask",
+      "thinking": "Daoyan is contemplating...",
+      "empty_hint": "Game events will auto-ask, or type your own question below"
     }
   }
 }

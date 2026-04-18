@@ -92,10 +92,10 @@
       "button_tag": "道衍",
       "panel_title": "道衍",
       "panel_subtitle": "帛书老子智慧修行平台",
-      "query_banner_label": "✦ 已为你准备好问题",
-      "copy_button": "一键复制",
-      "copied": "已复制",
-      "copy_hint": "请粘贴至下方对话框 ↓"
+      "input_placeholder": "向道衍提问……",
+      "send_button": "问",
+      "thinking": "道衍正在思索……",
+      "empty_hint": "游戏事件会自动为你提问，也可直接输入问题"
     }
   }
 }

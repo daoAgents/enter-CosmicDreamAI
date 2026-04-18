@@ -1,167 +1,145 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, MessageCircle, Copy, Check } from "lucide-react";
+import { X, MessageCircle, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const DAO_YAN_URL = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro/";
-const DAO_YAN_ORIGIN = "https://167c2bc1450e4ea3a0dc4b07c5873069.prod.enter.pro";
+const DAOYAN_API_URL =
+  "https://spb-t4nnhrh7ch7j2940.supabase.opentrust.net/functions/v1/daoyan-agent-api";
+const DAOYAN_ANON_KEY =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiIsInJlZiI6InNwYi10NG5uaHJoN2NoN2oyOTQwIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NzYwNzQ1MjMsImV4cCI6MjA5MTY1MDUyM30.5GFdUIA3rHOUoCI99ocBzBxDZjjQxOHRV-T6CKiHzCQ";
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
 
 interface DaoMasterPanelProps {
   contextQuery?: string;
   onClearQuery?: () => void;
 }
 
-function QueryBanner({
-  query,
-  onDismiss,
-}: {
-  query: string;
-  onDismiss: () => void;
-}) {
-  const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  const [visible, setVisible] = useState(true);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(query);
-    } catch {
-      const el = document.createElement("textarea");
-      el.value = query;
-      el.style.position = "fixed";
-      el.style.opacity = "0";
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-    }
-    setCopied(true);
-    setTimeout(() => {
-      setVisible(false);
-      setTimeout(onDismiss, 400);
-    }, 3000);
-  }
-
-  if (!visible) return null;
-
-  return (
-    <div
-      className="flex-shrink-0 animate-fade-in"
-      style={{
-        borderBottom: "1px solid hsl(260 50% 35% / 0.4)",
-        background: "linear-gradient(135deg, hsl(260 35% 14% / 0.95), hsl(240 28% 10% / 0.9))",
-        padding: "10px 14px",
-        transition: "opacity 0.4s ease",
-        opacity: visible ? 1 : 0,
-      }}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span
-          className="text-xs tracking-wide"
-          style={{
-            color: "hsl(260 60% 68%)",
-            fontFamily: "Inter, sans-serif",
-            letterSpacing: "0.08em",
-          }}
-        >
-          {t("tao.daomaster.query_banner_label")}
-        </span>
-        <button
-          onClick={() => { setVisible(false); setTimeout(onDismiss, 400); }}
-          style={{ color: "hsl(220 15% 40%)", lineHeight: 1 }}
-        >
-          <X size={12} />
-        </button>
-      </div>
-
-      <p
-        className="font-serif leading-relaxed mb-3"
-        style={{
-          fontSize: "0.78rem",
-          color: "hsl(220 20% 78%)",
-          lineHeight: 1.65,
-          wordBreak: "break-all",
-        }}
-      >
-        {query}
-      </p>
-
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-all duration-200"
-          style={{
-            background: copied ? "hsl(160 60% 25% / 0.5)" : "hsl(260 60% 35% / 0.4)",
-            border: `1px solid ${copied ? "hsl(160 60% 40% / 0.5)" : "hsl(260 60% 55% / 0.4)"}`,
-            color: copied ? "hsl(160 65% 65%)" : "hsl(260 70% 75%)",
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          {copied ? <Check size={11} /> : <Copy size={11} />}
-          {copied ? t("tao.daomaster.copied") : t("tao.daomaster.copy_button")}
-        </button>
-        {copied && (
-          <span
-            className="text-xs animate-fade-in"
-            style={{ color: "hsl(160 55% 52%)", fontFamily: "Inter, sans-serif" }}
-          >
-            {t("tao.daomaster.copy_hint")}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+function msgId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeQuery, setActiveQuery] = useState<string | undefined>(undefined);
-  const [iframeReady, setIframeReady] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
   const prevQueryRef = useRef<string | undefined>(undefined);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const tryPostMessage = useCallback((query: string) => {
-    if (!iframeRef.current?.contentWindow) return;
-    try {
-      iframeRef.current.contentWindow.postMessage(
-        { type: "ENTER_CHAT_INPUT", message: query },
-        DAO_YAN_ORIGIN
-      );
-      iframeRef.current.contentWindow.postMessage(
-        { type: "SET_INPUT", value: query },
-        DAO_YAN_ORIGIN
-      );
-    } catch { /* ignore cross-origin errors */ }
-  }, []);
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  const askDaoyan = useCallback(
+    async (question: string) => {
+      if (isStreaming || !question.trim()) return;
+      setIsStreaming(true);
+
+      const userMsg: ChatMessage = { id: msgId(), role: "user", content: question };
+      const assistantId = msgId();
+      const assistantMsg: ChatMessage = { id: assistantId, role: "assistant", content: "" };
+
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+
+      // Build conversation history from previous messages (excluding the new ones)
+      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+
+      try {
+        const locale = i18n.language === "zh" ? "zh-CN" : "en";
+        const response = await fetch(DAOYAN_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${DAOYAN_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            question,
+            conversation_history: history,
+            locale,
+            stream: true,
+          }),
+        });
+
+        if (!response.ok || !response.body) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? { ...m, content: i18n.language === "zh" ? "道衍暂时无法回应，请稍后再试。" : "Daoyan is unavailable. Please try again later." }
+                : m
+            )
+          );
+          setIsStreaming(false);
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + chunk } : m
+            )
+          );
+        }
+      } catch {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? { ...m, content: i18n.language === "zh" ? "道衍暂时无法回应，请稍后再试。" : "Daoyan is unavailable. Please try again later." }
+              : m
+          )
+        );
+      } finally {
+        setIsStreaming(false);
+      }
+    },
+    [isStreaming, messages, i18n.language]
+  );
+
+  // Auto-send contextQuery when it arrives
   useEffect(() => {
     if (contextQuery && contextQuery !== prevQueryRef.current) {
       prevQueryRef.current = contextQuery;
-      setActiveQuery(contextQuery);
       setIsOpen(true);
+      // Small delay to let the panel animate open
+      setTimeout(() => askDaoyan(contextQuery), 300);
+      onClearQuery?.();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextQuery]);
 
-  useEffect(() => {
-    if (iframeReady && activeQuery) {
-      const timer = setTimeout(() => tryPostMessage(activeQuery), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [iframeReady, activeQuery, tryPostMessage]);
-
-  function handleOpen() { setIsOpen(true); }
+  function handleOpen() {
+    setIsOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 400);
+  }
 
   function handleClose() {
     setIsOpen(false);
-    setActiveQuery(undefined);
-    onClearQuery?.();
   }
 
-  function handleIframeLoad() { setIframeReady(true); }
+  function handleSend() {
+    const q = inputValue.trim();
+    if (!q || isStreaming) return;
+    setInputValue("");
+    askDaoyan(q);
+  }
 
-  function handleDismissBanner() {
-    setActiveQuery(undefined);
-    onClearQuery?.();
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   }
 
   return (
@@ -208,7 +186,7 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
       <div
         className="fixed top-0 right-0 h-full z-50 flex flex-col"
         style={{
-          width: "min(440px, 100vw)",
+          width: "min(480px, 100vw)",
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           background: "hsl(240 22% 8%)",
@@ -258,21 +236,113 @@ export function DaoMasterPanel({ contextQuery, onClearQuery }: DaoMasterPanelPro
           </button>
         </div>
 
-        {/* Query banner */}
-        {activeQuery && isOpen && (
-          <QueryBanner query={activeQuery} onDismiss={handleDismissBanner} />
-        )}
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ scrollbarWidth: "thin", scrollbarColor: "hsl(260 40% 20%) transparent" }}>
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
+              <div style={{ fontSize: "2rem", opacity: 0.3 }}>☯</div>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "hsl(220 15% 38%)", fontFamily: "Inter, sans-serif" }}
+              >
+                {t("tao.daomaster.empty_hint")}
+              </p>
+            </div>
+          )}
 
-        {/* Iframe */}
-        <div className="flex-1 relative overflow-hidden">
-          <iframe
-            ref={iframeRef}
-            src={DAO_YAN_URL}
-            className="w-full h-full border-0"
-            title={t("tao.daomaster.panel_title")}
-            allow="clipboard-write"
-            onLoad={handleIframeLoad}
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              {msg.role === "assistant" && (
+                <div
+                  className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center mr-2 mt-0.5"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(260 70% 30%), hsl(200 60% 22%))",
+                    border: "1px solid hsl(260 50% 40% / 0.4)",
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  ☯
+                </div>
+              )}
+              <div
+                className="max-w-[82%] rounded-2xl px-3.5 py-2.5"
+                style={
+                  msg.role === "user"
+                    ? {
+                        background: "linear-gradient(135deg, hsl(260 55% 28% / 0.7), hsl(240 40% 22% / 0.6))",
+                        border: "1px solid hsl(260 50% 40% / 0.35)",
+                        color: "hsl(220 20% 82%)",
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "0.82rem",
+                        lineHeight: 1.6,
+                      }
+                    : {
+                        background: "hsl(240 18% 11% / 0.6)",
+                        border: "1px solid hsl(240 22% 20% / 0.5)",
+                        color: "hsl(220 20% 78%)",
+                        fontFamily: "'Noto Serif SC', serif",
+                        fontSize: "0.84rem",
+                        lineHeight: 1.8,
+                      }
+                }
+              >
+                {msg.content === "" && msg.role === "assistant" ? (
+                  <span style={{ color: "hsl(260 50% 55%)", fontFamily: "Inter, sans-serif", fontSize: "0.78rem" }}>
+                    {t("tao.daomaster.thinking")}
+                  </span>
+                ) : (
+                  <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                )}
+              </div>
+            </div>
+          ))}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input area */}
+        <div
+          className="flex-shrink-0 flex items-center gap-2 px-3 py-3"
+          style={{
+            borderTop: "1px solid hsl(240 22% 16% / 0.7)",
+            background: "hsl(240 22% 9%)",
+          }}
+        >
+          <input
+            ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isStreaming}
+            placeholder={t("tao.daomaster.input_placeholder")}
+            className="flex-1 rounded-xl px-3.5 py-2.5 text-sm outline-none transition-all"
+            style={{
+              background: "hsl(240 18% 13%)",
+              border: "1px solid hsl(240 25% 22% / 0.6)",
+              color: "hsl(220 20% 80%)",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "0.82rem",
+              caretColor: "hsl(260 70% 65%)",
+            }}
           />
+          <button
+            onClick={handleSend}
+            disabled={isStreaming || !inputValue.trim()}
+            className="flex-shrink-0 rounded-xl px-3.5 py-2.5 transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            style={{
+              background: "linear-gradient(135deg, hsl(260 65% 38%), hsl(240 50% 30%))",
+              border: "1px solid hsl(260 55% 48% / 0.4)",
+              color: "hsl(260 80% 82%)",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "0.82rem",
+              fontWeight: 500,
+            }}
+          >
+            <Send size={15} />
+          </button>
         </div>
       </div>
     </>
